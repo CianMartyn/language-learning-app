@@ -1,22 +1,20 @@
 const express = require('express');
-const dotenv = require('dotenv');
 const connectDB = require('./db');
+const dotenv = require('dotenv');
+const cors = require('cors');
 
 dotenv.config();
-const app = express();
-
-// Middleware
-app.use(express.json());
-
-// Connect to MongoDB
 connectDB();
 
-// Routes
-app.use('/api/users', require('./routes/userRoutes'));
+const app = express();
+app.use(express.json());
+app.use(cors());
 
-// Default route
+// Test route
 app.get('/', (req, res) => res.send('API is running...'));
 
-// Start the server
+// User routes
+app.use('/api/users', require('./routes/userRoutes'));
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
