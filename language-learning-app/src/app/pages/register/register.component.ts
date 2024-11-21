@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { ApiService } from '../../services/api.service';
+import { FormsModule } from '@angular/forms'; // For ngModel
+import { IonicModule } from '@ionic/angular'; // For Ionic components
 
 @Component({
   selector: 'app-register',
-  templateUrl: './register.page.html',
-  styleUrls: ['./register.page.scss'],
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.scss'],
   standalone: true, 
 })
-export class RegisterPage {
+export class RegisterComponent {
   username: string = '';
   email: string = '';
   password: string = '';
