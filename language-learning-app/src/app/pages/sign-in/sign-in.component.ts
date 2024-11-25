@@ -6,9 +6,9 @@ import { IonicModule } from '@ionic/angular';
 @Component({
   selector: 'app-sign-in',
   templateUrl: './sign-in.component.html',
-  styleUrls: ['./sign-in.component.css'],
+  styleUrls: ['./sign-in.component.scss'],
   standalone: true,
-  imports: [IonicModule, FormsModule],
+  imports: [IonicModule, FormsModule], // Add IonicModule and FormsModule here
 })
 export class SignInComponent {
   email: string = '';

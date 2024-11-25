@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { HttpClient } from '@angular/common/http';
-
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [IonicModule, FormsModule],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
+  imports: [HttpClientModule, FormsModule, IonicModule],
 })
 export class RegisterComponent {
   username: string = '';
@@ -36,7 +35,7 @@ export class RegisterComponent {
       },
       (error: any) => {
         console.error('Registration failed', error);
-        alert('Registration failed: ' + error.error.message);
+        alert(' failed: ' + error.error.message);
       }
     );
   }

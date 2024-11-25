@@ -7,6 +7,5 @@ export const routes: Routes = [
   { path: '', component: HomePage }, // Home page
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: SignInComponent },
-  { path: '', redirectTo: 'sign-in', pathMatch: 'full' },
-  { path: '**', redirectTo: '' }, // Redirect unknown routes to Hom
+  { path: '**', redirectTo: '', pathMatch: 'full' }, // Redirect unknown routes to HomePage
 ];
