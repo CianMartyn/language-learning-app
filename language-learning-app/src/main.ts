@@ -9,7 +9,6 @@ bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
-    provideHttpClient(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
   ],
 }).catch((err) => console.error(err));
