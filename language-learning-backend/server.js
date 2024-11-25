@@ -60,6 +60,45 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
+// Login Endpoint
+const jwt = require('jsonwebtoken'); // To generate JWT tokens
+const bcrypt = require('bcrypt'); // To compare hashed passwords
+
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate inputs
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Compare passwords
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || 'your_jwt_secret', // Use a strong secret key
+      { expiresIn: '1h' } // Token expiry
+    );
+
+    return res.status(200).json({ message: 'Login successful', token });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
+
 // Registration Endpoint
 app.post('/register', async (req, res) => {
   try {
