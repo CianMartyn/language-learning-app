@@ -32,9 +32,11 @@ export class RegisterComponent {
     this.http.post('http://localhost:5000/register', user).subscribe(
       (response: any) => {
         console.log('Registration successful', response);
+        alert('Registration successful');
       },
       (error: any) => {
         console.error('Registration failed', error);
+        alert('Registration failed: ' + error.error.message);
       }
     );
   }

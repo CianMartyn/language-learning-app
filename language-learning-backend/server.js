@@ -68,28 +68,28 @@ app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate inputs
+    console.log('Login request received:', { email, password }); // Debugging
+
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('User not found'); // Debugging
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Compare passwords
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      console.log('Invalid password'); // Debugging
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate a JWT token
     const token = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET || 'your_jwt_secret', // Use a strong secret key
-      { expiresIn: '1h' } // Token expiry
+      process.env.JWT_SECRET || 'your_jwt_secret',
+      { expiresIn: '1h' }
     );
 
     return res.status(200).json({ message: 'Login successful', token });
@@ -99,7 +99,10 @@ app.post('/login', async (req, res) => {
   }
 });
 
+
 // Registration Endpoint
+
+
 app.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -115,8 +118,11 @@ app.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Save new user
-    const newUser = new User({ username, email, password });
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Save new user with hashed password
+    const newUser = new User({ username, email, password: hashedPassword });
     await newUser.save();
 
     return res.status(201).json({ message: 'User registered successfully' });
