@@ -1,21 +1,15 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { AppComponent } from './app/app.component';
-import { IonicModule } from '@ionic/angular';
+import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { provideHttpClient } from '@angular/common/http';
-import { provideRouter, Route } from '@angular/router';
-import { importProvidersFrom } from '@angular/core';
-import { RegisterComponent } from './app/pages/register/register.component'; // Import the RegisterComponent
+import { routes } from './app/app.routes'; // Import routes
+import { AppComponent } from './app/app.component';
 
-
-const routes: Route[] = [
-  { path: '', redirectTo: 'register', pathMatch: 'full' }, // Default route
-  { path: 'register', component: RegisterComponent },      // Route for register page
-  // Add other routes here as needed
-];
 bootstrapApplication(AppComponent, {
   providers: [
-    importProvidersFrom(IonicModule.forRoot()),
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    provideIonicAngular(),
     provideHttpClient(),
-    provideRouter(routes), // Provide the router
+    provideRouter(routes, withPreloading(PreloadAllModules)),
   ],
 }).catch((err) => console.error(err));

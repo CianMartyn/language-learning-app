@@ -1,6 +1,11 @@
 {
   "dependencies": {
+    "@ionic/angular": "^8.4.0",
     "mongodb": "^6.10.0",
     "mongoose": "^8.8.2"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^19.0.0",
+    "@types/jasmine": "^5.1.4"
   }
 }
