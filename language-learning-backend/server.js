@@ -60,6 +60,7 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
+
 // Login Endpoint
 const jwt = require('jsonwebtoken'); // To generate JWT tokens
 const bcrypt = require('bcrypt'); // To compare hashed passwords
