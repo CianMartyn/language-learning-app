@@ -15,7 +15,9 @@
     "@angular/core": "^19.0.0",
     "@angular/platform-browser": "^19.0.0",
     "@angular/router": "^19.0.0",
-    "@ionic/angular": "^8.4.0"
+    "@google/generative-ai": "^0.22.0",
+    "@ionic/angular": "^8.4.0",
+    "axios": "^1.8.1"
   },
   "devDependencies": {
     "@ionic/angular-toolkit": "^12.1.1"
