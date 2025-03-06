@@ -1,9 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config({ path: './config.env' })
+require('dotenv').config()
 const { GoogleGenerativeAI } = require("@google/generative-ai")
-console.log("Gemini API KEY:", process.env.GEMINI_API_KEY);
 
 const app = express();
 const port = 5000;
@@ -147,7 +146,7 @@ app.post('/generate-lesson', async (req, res) => {
       const prompt = `Create a 30-second TikTok script for a language-learning lesson. 
                       Teach '${topic}' in '${language}' with a catchy intro, quick explanation, and fun closing.`;
 
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       const result = await model.generateContent(prompt);
       const response = result.response.text();
 
