@@ -1,0 +1,3 @@
+MONGO_URI = mongodb+srv://cian:UEqcp6EFzWa8qHdY@cluster0.hcdov.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
+GOOGLE_API_KEY = AIzaSyAODnI0KK14fY7q6VJNLhJyCkScVmqH_bg

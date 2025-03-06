@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+require('dotenv').config({ path: './config.env' })
+const { GoogleGenerativeAI } = require("@google/generative-ai")
+console.log("Gemini API KEY:", process.env.GEMINI_API_KEY);
 
 const app = express();
 const port = 5000;
@@ -130,6 +132,30 @@ app.post('/register', async (req, res) => {
   } catch (error) {
     console.error('Error during registration:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
+
+// Initialize Gemini API
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// Route to generate AI lessons
+app.post('/generate-lesson', async (req, res) => {
+  try {
+      const { language, topic } = req.body;
+
+      // Gemini AI prompt for TikTok-style lessons
+      const prompt = `Create a 30-second TikTok script for a language-learning lesson. 
+                      Teach '${topic}' in '${language}' with a catchy intro, quick explanation, and fun closing.`;
+
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const result = await model.generateContent(prompt);
+      const response = result.response.text();
+
+      res.json({ lesson: response });
+
+  } catch (error) {
+      console.error("Error generating lesson:", error);
+      res.status(500).json({ error: "Failed to generate lesson" });
   }
 });
 
