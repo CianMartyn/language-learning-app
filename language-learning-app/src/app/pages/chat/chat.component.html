@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Chat Room</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div *ngIf="!currentRoom">
+    <h2>Select a Chat Room</h2>
+    <ion-list>
+      <ion-item *ngFor="let room of rooms" (click)="joinRoom(room)">
+        {{ room }}
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <div *ngIf="currentRoom">
+    <h2>Room: {{ currentRoom }}</h2>
+    <div *ngFor="let msg of messages">
+      <div
+        [ngClass]="{
+          'my-message': msg.username === username,
+          'other-message': msg.username !== username
+        }"
+        class="message-bubble"
+      >
+        <strong *ngIf="msg.username !== username">{{ msg.username }}</strong>
+        <p>{{ msg.message }}</p>
+        <div class="timestamp">{{ msg.time }}</div>
+      </div>
+    </div>
+
+    <ion-item>
+      <ion-input [(ngModel)]="message" placeholder="Type your message..."></ion-input>
+    </ion-item>
+    <ion-button expand="block" (click)="sendMessage()">Send</ion-button>
+  </div>
+</ion-content>

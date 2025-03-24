@@ -1,27 +1,32 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { RouterModule } from '@angular/router'; // Import RouterModule for routerLink
-import { HttpClient } from '@angular/common/http';
-
+import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
-  templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
+  templateUrl: './home.page.html',
+  styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [IonicModule, FormsModule, RouterModule],
+  imports: [IonicModule, CommonModule, RouterModule, FormsModule],
 })
 export class HomePage {
-  lesson: string = '';
-  constructor(private http: HttpClient) {}
+  constructor(private router: Router) {}
 
+  goToChat() {
+    this.router.navigate(['/chat']);
+  }
 
-  generateLesson() {
-    this.http.post<any>('http://localhost:5000/generate-lesson', { 
-        language: "French", topic: "Greetings" 
-    }).subscribe(response => {
-        this.lesson = response.lesson;
-    });
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
+
+  goToLessons() {
+    this.router.navigate(['/lessons']);
+  }
+
+  goToAccount() {
+    this.router.navigate(['/account']);
   }
 }

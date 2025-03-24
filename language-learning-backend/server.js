@@ -1,23 +1,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const http = require('http');
 const cors = require('cors');
 require('dotenv').config()
 const { GoogleGenerativeAI } = require("@google/generative-ai")
-
-const app = express();
+const { Server } = require('socket.io');
 const port = 5000;
 
-// Middleware
+const app = express();
 app.use(express.json());
 
-// Enable CORS for frontend requests
-app.use(
-  cors({
-    origin: 'http://localhost:8100', // Allow only frontend origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
-    allowedHeaders: ['Content-Type'], // Allowed headers
-  })
-);
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:8100',
+    methods: ['GET', 'POST']
+  }
+});
+
+app.use(cors());
+app.use(express.json());
 
 // MongoDB Client
 const { MongoClient, ServerApiVersion } = require('mongodb'); 
@@ -158,7 +160,37 @@ app.post('/generate-lesson', async (req, res) => {
   }
 });
 
-// Start Server
-app.listen(port, () => {
+// Message Schema
+const messageSchema = new mongoose.Schema({
+  room: String,
+  username: String,
+  message: String,
+  time: String,
+});
+const Message = mongoose.model('Message', messageSchema);
+
+// Handle Socket.IO connections
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+
+  socket.on('joinRoom', (room) => {
+    socket.join(room);
+    console.log(`User ${socket.id} joined room ${room}`);
+  });
+
+  socket.on('chatMessage', async ({ room, username, message }) => {
+    const time = new Date().toLocaleTimeString();
+    const msg = new Message({ room, username, message, time });
+    await msg.save();
+    io.to(room).emit('message', { username, message, time });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected:', socket.id);
+  });
+});
+
+//Start server
+server.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

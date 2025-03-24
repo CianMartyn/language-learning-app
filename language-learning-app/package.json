@@ -17,7 +17,11 @@
     "@angular/router": "^19.0.0",
     "@google/generative-ai": "^0.22.0",
     "@ionic/angular": "^8.4.0",
-    "axios": "^1.8.1"
+    "@types/socket.io-client": "^1.4.36",
+    "axios": "^1.8.1",
+    "ionicons": "^7.4.0",
+    "ngx-socket-io": "^4.8.4",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@angular/cli": "19.2.1",

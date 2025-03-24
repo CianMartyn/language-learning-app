@@ -1,17 +1,23 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Welcome to Language Learning App</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="goToChat()">
+        <ion-icon name="chatbubble-ellipses-outline" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title class="center-title">Home</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="goToAccount()">
+        <ion-icon name="person-circle-outline" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h1>Welcome!</h1>
-  <p>Learn a new language today!</p>
-
-  <ion-button routerLink="/register" expand="block">Register</ion-button>
-  <ion-button routerLink="/login" expand="block">Log In</ion-button>
-
-  <ion-button (click)="generateLesson()">Generate Lesson</ion-button>
-<p>{{ lesson }}</p>
-
+  <div class="content">
+    <p>Lessons!</p>
+  </div>
 </ion-content>
