@@ -17,6 +17,7 @@ export class AccountComponent implements OnInit {
   emailNotifications: boolean = true;
   darkMode: boolean = false;
   soundEffects: boolean = true;
+  profilePicture: string = localStorage.getItem('profilePicture') || `https://api.dicebear.com/7.x/avataaars/svg?seed=${this.username}`;
   
   // Mock data
   lessonsCompleted: number = 12;
@@ -57,6 +58,26 @@ export class AccountComponent implements OnInit {
 
   onDarkModeChange(event: any) {
     this.themeService.setDarkMode(event.detail.checked);
+  }
+
+  async changeProfilePicture() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = (e: any) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event: any) => {
+          this.profilePicture = event.target.result;
+          localStorage.setItem('profilePicture', this.profilePicture);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    
+    input.click();
   }
 
   logout() {
