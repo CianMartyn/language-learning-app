@@ -33,10 +33,6 @@ export class HomePage {
     this.router.navigate(['/lessons']);
   }
 
-  goToAccount() {
-    this.router.navigate(['/account']);
-  }
-
   async generateLesson() {
     if (!this.selectedLanguage || !this.topic) {
       const toast = await this.toastCtrl.create({
