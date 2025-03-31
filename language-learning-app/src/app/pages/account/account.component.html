@@ -55,7 +55,37 @@
     </ion-card-content>
   </ion-card>
 
-
+  <!-- Settings Section -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Settings</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label>
+            <h2>Email Notifications</h2>
+            <p>Receive daily learning reminders</p>
+          </ion-label>
+          <ion-toggle [(ngModel)]="emailNotifications" (ionChange)="saveSettings()"></ion-toggle>
+        </ion-item>
+        <ion-item>
+          <ion-label>
+            <h2>Dark Mode</h2>
+            <p>Toggle dark/light theme</p>
+          </ion-label>
+          <ion-toggle [(ngModel)]="darkMode" (ionChange)="onDarkModeChange($event)"></ion-toggle>
+        </ion-item>
+        <ion-item>
+          <ion-label>
+            <h2>Sound Effects</h2>
+            <p>Play sounds during lessons</p>
+          </ion-label>
+          <ion-toggle [(ngModel)]="soundEffects" (ionChange)="saveSettings()"></ion-toggle>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
 
   <!-- Learning Goals -->
   <ion-card>

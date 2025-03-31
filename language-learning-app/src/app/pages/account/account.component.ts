@@ -18,7 +18,7 @@ export class AccountComponent implements OnInit {
   darkMode: boolean = false;
   soundEffects: boolean = true;
   
-  // Mock data for demonstration
+  // Mock data
   lessonsCompleted: number = 12;
   languagesLearned: number = 2;
   streakDays: number = 5;
@@ -55,8 +55,8 @@ export class AccountComponent implements OnInit {
     localStorage.setItem('userSettings', JSON.stringify(settings));
   }
 
-  toggleDarkMode() {
-    this.themeService.toggleDarkMode();
+  onDarkModeChange(event: any) {
+    this.themeService.setDarkMode(event.detail.checked);
   }
 
   logout() {
