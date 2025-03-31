@@ -24,7 +24,9 @@
         }"
         class="message-bubble"
       >
-        <strong *ngIf="msg.username !== username">{{ msg.username }}</strong>
+      <strong>
+        {{ msg.username === username ? 'You' : msg.username }}
+      </strong>      
         <p>{{ msg.message }}</p>
         <div class="timestamp">{{ msg.time }}</div>
       </div>

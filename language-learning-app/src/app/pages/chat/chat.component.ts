@@ -23,12 +23,14 @@ export class ChatComponent implements OnInit {
 
   ngOnInit(): void {
     this.username = localStorage.getItem('username') || 'Anonymous';
-
+    console.log("Loaded username:", this.username);
+  
     this.socket.on('message', (data: any) => {
+      console.log("Incoming message:", data);
       this.messages.push(data);
     });
   }
-
+  
   joinRoom(room: string): void {
     this.currentRoom = room;
     this.messages = []; // clear previous messages

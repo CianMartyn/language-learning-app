@@ -96,7 +96,7 @@ app.post('/login', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    return res.status(200).json({ message: 'Login successful', token });
+    return res.status(200).json({ message: 'Login successful', token, username: user.username });
   } catch (error) {
     console.error('Error during login:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
@@ -139,24 +139,38 @@ app.post('/register', async (req, res) => {
 // Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Route to generate AI lessons
 app.post('/generate-lesson', async (req, res) => {
   try {
-      const { language, topic } = req.body;
+    const { language, topic } = req.body;
 
-      // Gemini AI prompt for TikTok-style lessons
-      const prompt = `Create a 30-second TikTok script for a language-learning lesson. 
-                      Teach '${topic}' in '${language}' with a catchy intro, quick explanation, and fun closing.`;
+    if (!language || !topic) {
+      return res.status(400).json({ error: 'Language and topic are required' });
+    }
 
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const result = await model.generateContent(prompt);
-      const response = result.response.text();
+    const prompt = `
+Create a detailed beginner-level language lesson on the topic "${topic}" in ${language}.
+The lesson should follow this structure:
+1. Title
+2. Brief Introduction (why this topic is important)
+3. Vocabulary List (words and their meanings)
+4. Example Sentences (in ${language} with English translations)
+5. Simple Dialogue (short conversation using the vocabulary)
+6. Practice Activity (quiz, fill-in-the-blanks, or matching)
+7. Conclusion or cultural tip
 
-      res.json({ lesson: response });
+Use clear formatting. Output should be educational, friendly, and easy to follow.
+`;
 
+
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response.text();
+
+    res.json({ lesson: response });
   } catch (error) {
-      console.error("Error generating lesson:", error);
-      res.status(500).json({ error: "Failed to generate lesson" });
+    console.error('Error generating lesson:', error);
+    res.status(500).json({ error: 'Failed to generate lesson' });
   }
 });
 
@@ -183,7 +197,9 @@ io.on('connection', (socket) => {
     const msg = new Message({ room, username, message, time });
     await msg.save();
     io.to(room).emit('message', { username, message, time });
+    console.log("Sending message:", { username, message, time });
   });
+
 
   socket.on('disconnect', () => {
     console.log('A user disconnected:', socket.id);
