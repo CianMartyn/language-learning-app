@@ -2,14 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-sign-in',
   templateUrl: './sign-in.component.html',
   styleUrls: ['./sign-in.component.scss'],
   standalone: true,
-  imports: [IonicModule, FormsModule], 
+  imports: [IonicModule, FormsModule, RouterModule], 
 })
 export class SignInComponent {
   email: string = '';
@@ -25,7 +25,7 @@ export class SignInComponent {
         console.log('Login successful', response);
         this.router.navigate(['/home']);
         localStorage.setItem('token', response.token)
-        localStorage.setItem('username', response.username);;
+        localStorage.setItem('username', response.username);
       },
       (error) => {
         console.error('Login failed', error);
