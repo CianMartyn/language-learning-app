@@ -14,10 +14,10 @@ import { HttpClient } from '@angular/common/http';
 })
 export class HomePage {
 
-  selectedLanguage = 'Spanish';
-  topic = 'Greetings';
-  generatedLesson: string = '';
-  loading = false;
+  selectedLanguage: string = '';
+  customTopic: string = '';
+  showCustomLessonForm: boolean = false;
+  toastController: any;
   
   constructor(private router: Router, private http: HttpClient, private toastCtrl: ToastController) {}
 
@@ -33,10 +33,18 @@ export class HomePage {
     this.router.navigate(['/lessons']);
   }
 
-  async generateLesson() {
-    if (!this.selectedLanguage || !this.topic) {
-      const toast = await this.toastCtrl.create({
-        message: 'Please select a language and topic',
+  goToUnits() {
+    this.router.navigate(['/units']);
+  }
+
+  showCustomLesson() {
+    this.showCustomLessonForm = true;
+  }
+
+  async generateCustomLesson() {
+    if (!this.selectedLanguage || !this.customTopic) {
+      const toast = await this.toastController.create({
+        message: 'Please select a language and enter a topic',
         duration: 2000,
         color: 'warning'
       });
@@ -44,25 +52,25 @@ export class HomePage {
       return;
     }
 
-    this.loading = true;
 
-    this.http.post<{ lesson: string }>('http://localhost:5000/generate-lesson', {
-      language: this.selectedLanguage,
-      topic: this.topic
-    }).subscribe({
-      next: (res) => {
-        this.generatedLesson = res.lesson;
-        this.loading = false;
-      },
-      error: async (err) => {
-        this.loading = false;
-        const toast = await this.toastCtrl.create({
-          message: 'Failed to generate lesson',
-          duration: 2000,
-          color: 'danger'
-        });
-        await toast.present();
+    try {
+      const response = await this.http.post('http://localhost:5000/generate-lesson', {
+        language: this.selectedLanguage,
+        topic: this.customTopic
+      }).toPromise();
+
+      if (response) {
+        localStorage.setItem('currentLesson', JSON.stringify(response));
+        this.router.navigate(['/lesson']);
       }
-    });
+    } catch (error) {
+      console.error('Error generating lesson:', error);
+      const toast = await this.toastController.create({
+        message: 'Failed to generate lesson. Please try again.',
+        duration: 3000,
+        color: 'danger'
+      });
+      await toast.present();
+    }
   }
 }

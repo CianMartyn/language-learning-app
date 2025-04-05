@@ -17,31 +17,46 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h2>Generate a Language Lesson</h2>
+  <div class="welcome-section">
+    <h1>Welcome to Language Learning</h1>
+    <p>Choose how you want to learn today</p>
+  </div>
 
-  <ion-item>
-    <ion-label>Select Language</ion-label>
-    <ion-select [(ngModel)]="selectedLanguage" placeholder="Choose one">
-      <ion-select-option value="Spanish">Spanish</ion-select-option>
-      <ion-select-option value="French">French</ion-select-option>
-      <ion-select-option value="German">German</ion-select-option>
-      <ion-select-option value="Italian">Italian</ion-select-option>
-    </ion-select>
-  </ion-item>
+  <div class="options-grid">
+    <ion-card class="option-card" (click)="goToUnits()">
+      <ion-card-content>
+        <ion-icon name="school-outline" class="option-icon"></ion-icon>
+        <h2>Structured Learning</h2>
+        <p>Follow our organized curriculum with units and lessons</p>
+      </ion-card-content>
+    </ion-card>
 
-  <ion-item>
-    <ion-label position="floating">Enter Topic (e.g. Greetings)</ion-label>
-    <ion-input [(ngModel)]="topic"></ion-input>
-  </ion-item>
+    <ion-card class="option-card" (click)="showCustomLesson()">
+      <ion-card-content>
+        <ion-icon name="create-outline" class="option-icon"></ion-icon>
+        <h2>Custom Lesson</h2>
+        <p>Generate a personalized lesson on any topic</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
 
-  <ion-button expand="block" (click)="generateLesson()">Generate Lesson</ion-button>
+  <div class="custom-lesson-section" *ngIf="showCustomLessonForm">
+    <ion-item>
+      <ion-select [(ngModel)]="selectedLanguage" placeholder="Select Language">
+        <ion-select-option value="French">French</ion-select-option>
+        <ion-select-option value="Spanish">Spanish</ion-select-option>
+        <ion-select-option value="German">German</ion-select-option>
+        <ion-select-option value="Italian">Italian</ion-select-option>
+        <ion-select-option value="Japanese">Japanese</ion-select-option>
+      </ion-select>
+    </ion-item>
 
-  <ion-spinner *ngIf="loading" name="dots"></ion-spinner>
+    <ion-item>
+      <ion-input [(ngModel)]="customTopic" placeholder="Enter topic (e.g., 'Ordering food', 'Shopping')"></ion-input>
+    </ion-item>
 
-  <div *ngIf="generatedLesson">
-    <h3>Lesson:</h3>
-    <ion-text color="primary">
-      <p>{{ generatedLesson }}</p>
-    </ion-text>
+    <ion-button expand="block" (click)="generateCustomLesson()" [disabled]="!selectedLanguage || !customTopic">
+      Generate Lesson
+    </ion-button>
   </div>
 </ion-content>
