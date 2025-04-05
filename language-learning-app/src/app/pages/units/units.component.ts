@@ -209,13 +209,22 @@ export class UnitsComponent implements OnInit {
       }
 
       localStorage.setItem('currentLesson', JSON.stringify(response));
-
+      
       lesson.completed = true;
       this.updateUnitProgress(unit);
       this.saveProgress();
-
+      
+      // Close the modal and reset state before navigation
+      this.showLessonDetails = false;
+      this.selectedUnit = null;
+      
+      // Set loading to false and wait a moment before navigating
       this.isLoading = false;
-      await this.router.navigate(['/lesson']);
+      
+      // Use setTimeout to ensure the loading indicator is closed before navigation
+      setTimeout(() => {
+        this.router.navigate(['/lessons'], { replaceUrl: true });
+      }, 500);
     } catch (error) {
       console.error('Error generating lesson:', error);
       await this.showError('Failed to generate lesson. Please try again.');

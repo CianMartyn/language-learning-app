@@ -6,6 +6,7 @@ import { ChatComponent } from './pages/chat/chat.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AccountComponent } from './pages/account/account.component';
 import { UnitsComponent } from './pages/units/units.component';
+import { LessonsComponent } from './pages/lessons/lessons.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -29,6 +30,11 @@ export const routes: Routes = [
   {
     path: 'units',
     component: UnitsComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'lessons',
+    component: LessonsComponent,
     canActivate: [AuthGuard]
   },
   { path: '**', redirectTo: 'login' }

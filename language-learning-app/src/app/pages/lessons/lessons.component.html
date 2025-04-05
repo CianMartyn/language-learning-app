@@ -5,11 +5,24 @@
         <ion-icon name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Lesson</ion-title>
+    <ion-title class="ion-text-center">{{ lessonTitle || 'Lesson' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/home">
+        <ion-icon name="home-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <div class="lesson-container">
+    <div class="lesson-header">
+      <h1>{{ lessonTitle || 'Language Lesson' }}</h1>
+      <p *ngIf="lessonLanguage">Language: {{ lessonLanguage }}</p>
+    </div>
+
+    <div class="lesson-content">
+      <pre>{{ lessonContent }}</pre>
+    </div>
   </div>
 </ion-content>
