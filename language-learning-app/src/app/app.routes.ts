@@ -5,8 +5,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ChatComponent } from './pages/chat/chat.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AccountComponent } from './pages/account/account.component';
-//import { LessonsComponent } from './pages/lessons/lessons.component';
-//import { AccountComponent } from './pages/account/account.component';
+import { UnitsComponent } from './pages/units/units.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -27,7 +26,10 @@ export const routes: Routes = [
     component: AccountComponent, 
     canActivate: [AuthGuard] 
   },
-  // { path: 'lessons', component: LessonsComponent },
-  // { path: 'account', component: AccountComponent },
+  {
+    path: 'units',
+    component: UnitsComponent,
+    canActivate: [AuthGuard]
+  },
   { path: '**', redirectTo: 'login' }
 ];
