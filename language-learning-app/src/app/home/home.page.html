@@ -55,8 +55,9 @@
       <ion-input [(ngModel)]="customTopic" placeholder="Enter topic (e.g., 'Ordering food', 'Shopping')"></ion-input>
     </ion-item>
 
-    <ion-button expand="block" (click)="generateCustomLesson()" [disabled]="!selectedLanguage || !customTopic">
-      Generate Lesson
+    <ion-button expand="block" (click)="generateCustomLesson()" [disabled]="!selectedLanguage || !customTopic || isLoading">
+      <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      <span *ngIf="!isLoading">Load Lesson</span>
     </ion-button>
   </div>
 </ion-content>

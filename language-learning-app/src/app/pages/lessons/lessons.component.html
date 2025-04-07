@@ -14,15 +14,25 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
   <div class="lesson-container">
     <div class="lesson-header">
-      <h1>{{ lessonTitle || 'Language Lesson' }}</h1>
-      <p *ngIf="lessonLanguage">Language: {{ lessonLanguage }}</p>
+      <div class="lesson-title-container">
+        <h1>{{ lessonTitle || 'Language Lesson' }}</h1>
+        <div class="language-badge" *ngIf="lessonLanguage">
+          <ion-icon name="globe-outline"></ion-icon>
+          <span>{{ lessonLanguage }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="lesson-content">
-      <pre>{{ lessonContent }}</pre>
+      <div class="content-card">
+        <div class="content-section" *ngFor="let section of formattedContent; let i = index">
+          <h2 *ngIf="section.title">{{ section.title }}</h2>
+          <div class="content-text" [innerHTML]="section.content"></div>
+        </div>
+      </div>
     </div>
   </div>
 </ion-content>
