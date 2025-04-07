@@ -281,4 +281,8 @@ export class UnitsComponent implements OnInit {
     
     localStorage.setItem('unitsProgress', JSON.stringify(progress));
   }
+
+  goBack() {
+    this.router.navigate(['/home']);
+  }
 }
