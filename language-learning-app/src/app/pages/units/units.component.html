@@ -1,80 +1,106 @@
-<ion-header> 
+<ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button routerLink="/home">
-        <ion-icon name="arrow-back-outline"></ion-icon>
+        <ion-icon name="home-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">Learning Path</ion-title>
+    <ion-title>Learning Path</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <div class="language-selector">
-    <ion-select [(ngModel)]="selectedLanguage" (ionChange)="onLanguageChange()">
+<ion-content>
+  <div class="page-header">
+    <h1>Choose Your Path</h1>
+    <ion-select 
+      [(ngModel)]="selectedLanguage" 
+      (ionChange)="onLanguageChange()"
+      class="language-select"
+      interface="popover">
       <ion-select-option value="French">French</ion-select-option>
       <ion-select-option value="Spanish">Spanish</ion-select-option>
       <ion-select-option value="German">German</ion-select-option>
       <ion-select-option value="Italian">Italian</ion-select-option>
       <ion-select-option value="Japanese">Japanese</ion-select-option>
+      
     </ion-select>
   </div>
 
-  <div class="learning-path">
-    <div class="path-line"></div>
-    
-    <div class="units-container">
-      <div *ngFor="let unit of units; let i = index" class="unit-wrapper">
-        <div class="unit-card" [class.completed]="unit.completed" (click)="selectUnit(unit)">
-          <div class="unit-icon" [style.background-color]="getUnitColor(unit)">
-            <ion-icon [name]="unit.icon"></ion-icon>
-          </div>
-          <div class="unit-info">
-            <h2>{{ unit.title }}</h2>
-            <p>{{ unit.description }}</p>
-          </div>
-          <div class="progress-bar">
-            <div class="progress" [style.width.%]="unit.progress"></div>
-          </div>
-        </div>
-        
-        <div class="connector" *ngIf="i < units.length - 1"></div>
+  <div class="units-grid">
+    <div class="unit-card" *ngFor="let unit of units" 
+         [style.background]="getUnitColor(unit)"
+         [class.completed]="unit.completed"
+         (click)="selectUnit(unit)">
+      <div class="unit-icon" [style.background]="getUnitColor(unit)">
+        <ion-icon [name]="unit.icon"></ion-icon>
+      </div>
+      <div class="unit-content">
+        <h3>{{ unit.title }}</h3>
+        <p>{{ unit.description }}</p>
+      </div>
+      <div class="completion-badge" *ngIf="unit.completed">
+        Completed
+      </div>
+      <div class="progress-container">
+        <div class="progress-bar" [style.width.%]="unit.progress"></div>
       </div>
     </div>
   </div>
+</ion-content>
 
-  <!-- Lesson Details Modal -->
-  <ion-modal [isOpen]="showLessonDetails" (didDismiss)="closeLessonDetails()">
-    <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>{{ selectedUnit?.title }}</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="closeLessonDetails()">Close</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="ion-padding">
-        <div class="lessons-list" *ngIf="selectedUnit">
-          <div *ngFor="let lesson of selectedUnit.lessons; let i = index" 
-               class="lesson-item"
-               [class.completed]="lesson.completed">
-            <div class="lesson-icon">
-              <ion-icon *ngIf="lesson.completed" name="checkmark-circle"></ion-icon>
-              <ion-icon *ngIf="!lesson.completed" name="play-circle"></ion-icon>
-            </div>
+<!-- Lesson Details Modal -->
+<ion-modal [isOpen]="showLessonDetails" class="lesson-modal">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button (click)="closeLessonDetails()">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-title>{{ selectedUnit?.title }}</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <div class="modal-header">
+        <h2>{{ selectedUnit?.title }}</h2>
+        <p>{{ selectedUnit?.description }}</p>
+      </div>
+
+      <div class="lessons-list">
+        <div class="lesson-item" *ngFor="let lesson of selectedUnit?.lessons"
+             [class.completed]="lesson.completed">
+          <div class="lesson-content">
+            <ion-icon *ngIf="lesson.completed" 
+                      name="checkmark-circle" 
+                      class="completed-icon">
+            </ion-icon>
+            <ion-icon *ngIf="!lesson.completed" 
+                      name="play-circle-outline">
+            </ion-icon>
+            
             <div class="lesson-info">
               <h3>{{ lesson.title }}</h3>
               <p>{{ lesson.description }}</p>
             </div>
-            <ion-button (click)="startLesson(selectedUnit, lesson)">
+
+            <ion-button class="lesson-button"
+                        [color]="lesson.completed ? 'success' : 'primary'"
+                        (click)="startLesson(selectedUnit!, lesson)">
               {{ lesson.completed ? 'Review' : 'Start' }}
             </ion-button>
           </div>
         </div>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
 
-  <ion-loading [isOpen]="isLoading" message="Generating your lesson..."></ion-loading>
-</ion-content>
+<!-- Loading Overlay -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="loading-content">
+    <ion-spinner></ion-spinner>
+    <p>Generating your lesson...</p>
+  </div>
+</div>
