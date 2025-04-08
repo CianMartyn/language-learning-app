@@ -109,7 +109,31 @@ export class AccountComponent implements OnInit {
   }
 
   deleteAccount() {
-    console.log('Account deletion requested');
-    this.logout();
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username'); 
+  
+    fetch('http://localhost:5000/delete-account', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ username })
+    })
+    .then(response => {
+      if (response.ok) {
+        console.log('Account deleted');
+        this.logout();
+        return null; 
+      } else {
+        return response.json().then(data => {
+          throw new Error(data.message || 'Failed to delete account');
+        });
+      }
+    })
+    .catch(err => {
+      console.error('Error:', err);
+      alert('Could not delete account.');
+    });
   }
-} 
+}  

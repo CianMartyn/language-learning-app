@@ -136,6 +136,35 @@ app.post('/register', async (req, res) => {
   }
 });
 
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).json({ message: 'No token provided' });
+
+  jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret', (err, user) => {
+    if (err) return res.status(403).json({ message: 'Invalid or expired token' });
+
+    req.user = user;
+    next();
+  });
+}
+
+// Delete account endpoint
+app.delete('/delete-account', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    
+    // Delete user from DB
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({ message: 'Account deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting account:', err);
+    res.status(500).json({ message: 'Failed to delete account' });
+  }
+});
+
 // Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
