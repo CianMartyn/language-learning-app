@@ -1,13 +1,243 @@
-.center-title {
-  text-align: center;
-  width: 100%;
-  font-size: 1.2rem;
+:host {
+  --primary-color: #6c5ce7;
+  --secondary-color: #a29bfe;
+  --accent-color: #00b894;
+  --text-color: #2d3436;
+  --light-text: #636e72;
+  --background-color: #f5f6fa;
+  --card-background: #ffffff;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --border-radius: 16px;
+  --spacing: 16px;
 }
 
-.content {
+ion-content {
+  --background: var(--background-color);
+}
+
+// Header Styles
+.app-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-align: center;
+}
+
+.account-button {
+  --color: var(--primary-color);
+}
+
+// Container
+.container {
+  padding: var(--spacing);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+// Welcome Card
+.welcome-card {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: var(--border-radius);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--card-shadow);
+  color: white;
+  text-align: center;
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 0.9;
+  }
+}
+
+// Options Container
+.options-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// Option Cards
+.option-card {
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(108, 92, 231, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+
+    ion-icon {
+      font-size: 24px;
+      color: var(--primary-color);
+    }
+  }
+
+  .card-content {
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin: 0 0 8px 0;
+    }
+
+    p {
+      color: var(--light-text);
+      margin: 0 0 16px 0;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .card-button {
+      --color: var(--primary-color);
+      margin: 0;
+      --padding-start: 0;
+      height: 32px;
+      font-size: 0.9rem;
+
+      ion-icon {
+        margin-left: 4px;
+      }
+    }
+  }
+}
+
+// Chat Button
+.chat-button-container {
   display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100%;
-  font-size: 1.4rem;
+  margin-top: 16px;
+}
+
+.chat-button {
+  --background: var(--accent-color);
+  --background-hover: #00a884;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0, 184, 148, 0.2);
+  font-weight: 500;
+  height: 48px;
+  width: 100%;
+  max-width: 300px;
+
+  ion-icon {
+    margin-right: 8px;
+  }
+}
+
+// Modal Styles
+.form-container {
+  padding: 16px;
+
+  ion-item {
+    --padding-start: 0;
+    --border-color: transparent;
+    --background: transparent;
+    margin-bottom: 16px;
+
+    ion-label {
+      color: var(--light-text);
+      margin-bottom: 8px;
+    }
+
+    ion-select, ion-input {
+      --padding-start: 16px;
+      --padding-end: 16px;
+      --padding-top: 12px;
+      --padding-bottom: 12px;
+      border-radius: 8px;
+      background: rgba(108, 92, 231, 0.05);
+    }
+  }
+
+  .generate-button {
+    margin-top: 24px;
+    --background: #6c5ce7;
+    --background-hover: #a29bfe;
+    --border-radius: 12px;
+    min-height: 48px;
+    --color: white;
+    font-weight: 500;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+    
+    div {
+      color: white;
+      font-weight: 500;
+    }
+  }
+}
+
+// Dark Mode Adjustments
+:host-context(.dark) {
+  --background-color: #1e272e;
+  --card-background: #2d3436;
+  --text-color: #f5f6fa;
+  --light-text: #b2bec3;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  .option-card {
+    .card-icon {
+      background: rgba(108, 92, 231, 0.2);
+    }
+  }
+
+  .form-container {
+    ion-select, ion-input {
+      background: rgba(108, 92, 231, 0.1);
+    }
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-card {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.option-card {
+  animation: fadeIn 0.6s ease-out;
+  animation-fill-mode: both;
+
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
 }
