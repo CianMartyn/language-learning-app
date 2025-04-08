@@ -192,6 +192,11 @@ io.on('connection', (socket) => {
     console.log(`User ${socket.id} joined room ${room}`);
   });
 
+  socket.on('leaveRoom', (room) => {
+    socket.leave(room);
+    console.log(`User ${socket.id} left room ${room}`);
+  });
+
   socket.on('chatMessage', async ({ room, username, message }) => {
     const time = new Date().toLocaleTimeString();
     const msg = new Message({ room, username, message, time });

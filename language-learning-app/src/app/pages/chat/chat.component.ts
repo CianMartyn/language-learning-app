@@ -3,13 +3,14 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Socket } from 'ngx-socket-io';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule] 
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule] 
 })
 
 export class ChatComponent implements OnInit {
@@ -35,6 +36,14 @@ export class ChatComponent implements OnInit {
     this.currentRoom = room;
     this.messages = []; // clear previous messages
     this.socket.emit('joinRoom', room);
+  }
+
+  leaveRoom(): void {
+    if (this.currentRoom) {
+      this.socket.emit('leaveRoom', this.currentRoom);
+      this.currentRoom = null;
+      this.messages = [];
+    }
   }
 
   sendMessage(): void {
