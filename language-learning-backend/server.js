@@ -60,6 +60,8 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 const User = mongoose.model('User', userSchema);
 
@@ -164,6 +166,72 @@ app.delete('/delete-account', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Failed to delete account' });
   }
 });
+
+// Friend request route
+app.post('/friend-request', authenticateToken, async (req, res) => {
+  try {
+    const { toUsername } = req.body;
+    const fromUser = await User.findById(req.user.userId);
+    const toUser = await User.findOne({ username: toUsername });
+
+    if (!toUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (toUser.friendRequests.includes(fromUser._id) || toUser.friends.includes(fromUser._id)) {
+      return res.status(400).json({ message: 'Friend request already sent or already friends' });
+    }
+
+    toUser.friendRequests.push(fromUser._id);
+    await toUser.save();
+
+    res.status(200).json({ message: 'Friend request sent' });
+  } catch (err) {
+    console.error('Error sending friend request:', err);
+    res.status(500).json({ message: 'Failed to send friend request' });
+  }
+});
+
+app.get('/friend-requests', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).populate('friendRequests', 'username');
+    res.status(200).json({ requests: user.friendRequests });
+  } catch (err) {
+    console.error('Error getting friend requests:', err);
+    res.status(500).json({ message: 'Failed to get friend requests' });
+  }
+});
+
+app.post('/accept-request', authenticateToken, async (req, res) => {
+  try {
+    const { fromUserId } = req.body;
+
+    const currentUser = await User.findById(req.user.userId);
+    const fromUser = await User.findById(fromUserId);
+
+    if (!currentUser.friendRequests.includes(fromUserId)) {
+      return res.status(400).json({ message: 'No such friend request' });
+    }
+
+    // Add each other to friends list
+    currentUser.friends.push(fromUserId);
+    fromUser.friends.push(currentUser._id);
+
+    // Remove the friend request
+    currentUser.friendRequests = currentUser.friendRequests.filter(
+      id => id.toString() !== fromUserId
+    );
+
+    await currentUser.save();
+    await fromUser.save();
+
+    res.status(200).json({ message: 'Friend request accepted' });
+  } catch (err) {
+    console.error('Error accepting friend request:', err);
+    res.status(500).json({ message: 'Failed to accept friend request' });
+  }
+});
+
 
 // Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

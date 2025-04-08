@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Socket } from 'ngx-socket-io';
 import { RouterModule } from '@angular/router';
+import { FriendService } from 'src/app/services/friend.service';
 
 @Component({
   selector: 'app-chat',
@@ -20,7 +21,7 @@ export class ChatComponent implements OnInit {
   message: string = '';
   messages: any[] = [];
 
-  constructor(private socket: Socket) {}
+  constructor(private socket: Socket, private friendService: FriendService) {}
 
   ngOnInit(): void {
     this.username = localStorage.getItem('username') || 'Anonymous';
@@ -30,6 +31,13 @@ export class ChatComponent implements OnInit {
       console.log("Incoming message:", data);
       this.messages.push(data);
     });
+  }
+
+  sendRequest(username: string) {
+    this.friendService.sendFriendRequest(username).subscribe({
+     next: (res) => alert(res.message),
+     error: (err) => alert(err.error.message || 'Error sending request')
+   });
   }
   
   joinRoom(room: string): void {
