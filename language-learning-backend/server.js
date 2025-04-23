@@ -415,6 +415,20 @@ io.on('connection', (socket) => {
   });
 });
 
+// Get messages for a room
+app.get('/messages/:room', authenticateToken, async (req, res) => {
+  try {
+    const messages = await Message.find({ room: req.params.room })
+      .sort({ time: 1 })
+      .exec();
+    
+    res.json(messages);
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ error: 'Failed to fetch messages' });
+  }
+});
+
 //Start server
 server.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

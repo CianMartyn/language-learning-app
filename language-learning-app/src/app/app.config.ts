@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { ThemeService } from './services/theme.service';
+import { Socket } from 'ngx-socket-io';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,6 +14,17 @@ export const appConfig: ApplicationConfig = {
       rippleEffect: true,
       animated: true
     }),
-    ThemeService
+    ThemeService,
+    {
+      provide: Socket,
+      useFactory: () => {
+        return new Socket({
+          url: 'http://localhost:5000',
+          options: {
+            transports: ['websocket']
+          }
+        });
+      }
+    }
   ]
 }; 

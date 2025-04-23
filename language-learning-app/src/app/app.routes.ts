@@ -7,6 +7,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { AccountComponent } from './pages/account/account.component';
 import { UnitsComponent } from './pages/units/units.component';
 import { LessonsComponent } from './pages/lessons/lessons.component';
+import { DirectChatPage } from './direct-chat/direct-chat.page';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -20,6 +21,11 @@ export const routes: Routes = [
   { 
     path: 'chat', 
     component: ChatComponent, 
+    canActivate: [AuthGuard] 
+  },
+  { 
+    path: 'direct-chat', 
+    component: DirectChatPage, 
     canActivate: [AuthGuard] 
   },
   { 

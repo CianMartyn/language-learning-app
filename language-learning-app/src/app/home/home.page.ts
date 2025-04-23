@@ -85,7 +85,7 @@ export class HomePage implements OnInit {
   }
 
   goToChat() {
-    this.router.navigate(['/chat']);
+    this.router.navigate(['/direct-chat']);
   }
 
   goToHome() {
@@ -207,8 +207,8 @@ export class HomePage implements OnInit {
   }
 
   startChat(friend: Friend) {
-    // Navigate to chat with the selected friend
-    this.router.navigate(['/chat'], { 
+    // Navigate to direct chat with the selected friend
+    this.router.navigate(['/direct-chat'], { 
       queryParams: { 
         friendId: friend._id,
         friendUsername: friend.username

@@ -1,0 +1,118 @@
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.message-right, .message-left {
+  width: 100%;
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+
+.message-right {
+  justify-content: flex-end;
+  
+  .message-content {
+    background-color: #0084ff;
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+    margin-left: 20%;
+  }
+
+  .message-time {
+    color: rgba(255, 255, 255, 0.8);
+    text-align: right;
+  }
+}
+
+.message-left {
+  justify-content: flex-start;
+  
+  .message-content {
+    background-color: #f0f0f0;
+    color: #000;
+    border-radius: 18px 18px 18px 4px;
+    margin-right: 20%;
+  }
+
+  .message-time {
+    color: #8e8e93;
+  }
+}
+
+.message-content {
+  max-width: 80%;
+  padding: 8px 12px;
+  position: relative;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.message-text {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.message-time {
+  font-size: 12px;
+  margin-top: 4px;
+  opacity: 0.8;
+}
+
+ion-footer {
+  background: #fff;
+  border-top: 1px solid #e5e5ea;
+
+  ion-toolbar {
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --padding-start: 8px;
+    --padding-end: 8px;
+    --background: #fff;
+  }
+
+  ion-item {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    --inner-padding-end: 0;
+    --background: transparent;
+    --border-color: transparent;
+  }
+
+  ion-input {
+    --background: #f1f1f1;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    border-radius: 20px;
+    margin: 8px 0;
+  }
+
+  ion-button {
+    margin: 0 4px;
+    height: 36px;
+    --padding-start: 0;
+    --padding-end: 0;
+    width: 36px;
+    --background: transparent;
+    --background-hover: transparent;
+    --background-activated: transparent;
+    --box-shadow: none;
+    --border-width: 0;
+    --border-style: none;
+    --border-color: transparent;
+    --ripple-color: transparent;
+
+    ion-icon {
+      font-size: 24px;
+      color: #0084ff;
+    }
+  }
+} 

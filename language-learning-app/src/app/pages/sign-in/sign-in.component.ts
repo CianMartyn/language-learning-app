@@ -23,9 +23,9 @@ export class SignInComponent {
     this.http.post('http://localhost:5000/login', user).subscribe(
       (response: any) => {
         console.log('Login successful', response);
-        this.router.navigate(['/home']);
-        localStorage.setItem('token', response.token)
+        localStorage.setItem('token', response.token);
         localStorage.setItem('username', response.username);
+        this.router.navigate(['/home']);
       },
       (error) => {
         console.error('Login failed', error);
