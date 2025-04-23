@@ -239,7 +239,11 @@ app.post('/friend-request', authenticateToken, async (req, res) => {
 app.get('/friend-requests', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).populate('friendRequests', 'username');
-    res.status(200).json({ requests: user.friendRequests });
+    const formattedRequests = user.friendRequests.map(request => ({
+      _id: request._id,
+      fromUsername: request.username
+    }));
+    res.status(200).json({ requests: formattedRequests });
   } catch (err) {
     console.error('Error getting friend requests:', err);
     res.status(500).json({ message: 'Failed to get friend requests' });
@@ -261,9 +265,12 @@ app.post('/accept-request', authenticateToken, async (req, res) => {
     currentUser.friends.push(fromUserId);
     fromUser.friends.push(currentUser._id);
 
-    // Remove the friend request
+    // Remove the friend request from both users
     currentUser.friendRequests = currentUser.friendRequests.filter(
       id => id.toString() !== fromUserId
+    );
+    fromUser.friendRequests = fromUser.friendRequests.filter(
+      id => id.toString() !== currentUser._id.toString()
     );
 
     await currentUser.save();
