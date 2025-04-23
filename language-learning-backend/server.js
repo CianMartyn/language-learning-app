@@ -305,6 +305,34 @@ app.get('/friends', authenticateToken, async (req, res) => {
   }
 });
 
+// Remove friend endpoint
+app.delete('/friends/:friendId', authenticateToken, async (req, res) => {
+  try {
+    const { friendId } = req.params;
+    const userId = req.user.userId;
+
+    // Find both users
+    const user = await User.findById(userId);
+    const friend = await User.findById(friendId);
+
+    if (!user || !friend) {
+      return res.status(404).json({ message: 'User or friend not found' });
+    }
+
+    // Remove friend from both users' friends lists
+    user.friends = user.friends.filter(id => id.toString() !== friendId);
+    friend.friends = friend.friends.filter(id => id.toString() !== userId);
+
+    // Save both users
+    await Promise.all([user.save(), friend.save()]);
+
+    res.status(200).json({ message: 'Friend removed successfully' });
+  } catch (err) {
+    console.error('Error removing friend:', err);
+    res.status(500).json({ message: 'Failed to remove friend', error: err.message });
+  }
+});
+
 // Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 

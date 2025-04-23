@@ -215,4 +215,15 @@ export class HomePage implements OnInit {
       }
     });
   }
+
+  async removeFriend(friendId: string) {
+    try {
+      await this.friendService.removeFriend(friendId).toPromise();
+      this.showToast('Friend removed successfully', 'success');
+      this.loadFriends(); // Refresh the friends list
+    } catch (error) {
+      console.error('Error removing friend:', error);
+      this.showToast('Failed to remove friend', 'danger');
+    }
+  }
 }

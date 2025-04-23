@@ -77,9 +77,14 @@
             <ion-icon name="person-circle-outline"></ion-icon>
             <span>{{ friend.username }}</span>
           </div>
-          <ion-button fill="clear" (click)="startChat(friend)">
-            <ion-icon name="chatbubble-ellipses-outline" slot="icon-only"></ion-icon>
-          </ion-button>
+          <div class="friend-actions">
+            <ion-button fill="clear" (click)="startChat(friend)">
+              <ion-icon name="chatbubble-ellipses-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" color="danger" (click)="removeFriend(friend._id)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
         </div>
       </div>
     </div>

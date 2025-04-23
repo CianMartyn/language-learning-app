@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 
 export interface Friend {
   _id: string;
@@ -52,6 +52,19 @@ export class FriendService {
   getPendingRequests(): Observable<any> {
     return this.http.get(`${this.apiUrl}/friend-requests`, {
       headers: this.getAuthHeaders()
+    });
+  }
+
+  removeFriend(friendId: string): Observable<any> {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      return throwError(() => new Error('No token found'));
+    }
+
+    return this.http.delete(`${this.apiUrl}/friends/${friendId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
   }
 }

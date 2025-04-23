@@ -303,9 +303,14 @@ ion-content {
         }
       }
 
-      ion-button {
-        --padding-start: 8px;
-        --padding-end: 8px;
+      .friend-actions {
+        display: flex;
+        gap: 8px;
+
+        ion-button {
+          --padding-start: 8px;
+          --padding-end: 8px;
+        }
       }
     }
   }
