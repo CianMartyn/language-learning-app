@@ -11,9 +11,19 @@
   <div class="chat-container">
     <div *ngFor="let message of messages" 
          [class]="isMessageFromCurrentUser(message) ? 'message-right' : 'message-left'">
-      <div class="message-content">
-        <p class="message-text">{{ message.message }}</p>
-        <div class="message-time">{{ message.time }}</div>
+      <div class="message-wrapper">
+        <div class="message-content">
+          <p class="message-text">{{ message.message }}</p>
+          <div class="message-time">{{ message.time }}</div>
+        </div>
+        <ion-button *ngIf="isMessageFromCurrentUser(message)" 
+                    fill="clear"
+                    color="danger"
+                    size="small"
+                    class="delete-button"
+                    (click)="deleteMessage(message)">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
       </div>
     </div>
   </div>

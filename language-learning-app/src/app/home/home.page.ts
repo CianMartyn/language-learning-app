@@ -85,7 +85,7 @@ export class HomePage implements OnInit {
   }
 
   goToChat() {
-    this.router.navigate(['/direct-chat']);
+    this.router.navigate(['/chat']);
   }
 
   goToHome() {

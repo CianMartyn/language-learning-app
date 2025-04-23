@@ -65,6 +65,23 @@
   opacity: 0.8;
 }
 
+.message-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.message-right .message-wrapper {
+  flex-direction: row-reverse;
+}
+
+.delete-button {
+  opacity: 0.7;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  height: 30px;
+}
+
 ion-footer {
   background: #fff;
   border-top: 1px solid #e5e5ea;

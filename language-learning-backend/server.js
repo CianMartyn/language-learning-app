@@ -152,15 +152,28 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ message: 'No token provided' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret', (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret', async (err, decoded) => {
     if (err) {
       console.log('Auth middleware - Token verification failed:', err);
       return res.status(403).json({ message: 'Invalid or expired token' });
     }
 
-    console.log('Auth middleware - Token verified, user:', user);
-    req.user = user;
-    next();
+    try {
+      const user = await User.findById(decoded.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      console.log('Auth middleware - Token verified, user:', user);
+      req.user = {
+        userId: decoded.userId,
+        username: user.username
+      };
+      next();
+    } catch (error) {
+      console.error('Auth middleware - Error fetching user:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
   });
 }
 
@@ -405,8 +418,13 @@ io.on('connection', (socket) => {
     const time = new Date().toLocaleTimeString();
     const msg = new Message({ room, username, message, time });
     await msg.save();
-    io.to(room).emit('message', { username, message, time });
-    console.log("Sending message:", { username, message, time });
+    io.to(room).emit('message', { 
+      _id: msg._id,
+      username, 
+      message, 
+      time 
+    });
+    console.log("Sending message:", { _id: msg._id, username, message, time });
   });
 
 
@@ -426,6 +444,28 @@ app.get('/messages/:room', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error fetching messages:', error);
     res.status(500).json({ error: 'Failed to fetch messages' });
+  }
+});
+
+// Delete a message
+app.delete('/messages/:messageId', authenticateToken, async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.messageId);
+    
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+
+    // Only allow users to delete their own messages
+    if (message.username !== req.user.username) {
+      return res.status(403).json({ message: 'Not authorized to delete this message' });
+    }
+
+    await Message.findByIdAndDelete(req.params.messageId);
+    res.status(200).json({ message: 'Message deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting message:', error);
+    res.status(500).json({ error: 'Failed to delete message' });
   }
 });
 
