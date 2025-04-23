@@ -61,7 +61,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+  friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  sentFriendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 const User = mongoose.model('User', userSchema);
 
@@ -142,11 +143,22 @@ function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) return res.status(401).json({ message: 'No token provided' });
+  console.log('Auth middleware - Request path:', req.path);
+  console.log('Auth middleware - Auth header:', authHeader);
+  console.log('Auth middleware - Token:', token);
+
+  if (!token) {
+    console.log('Auth middleware - No token provided');
+    return res.status(401).json({ message: 'No token provided' });
+  }
 
   jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret', (err, user) => {
-    if (err) return res.status(403).json({ message: 'Invalid or expired token' });
+    if (err) {
+      console.log('Auth middleware - Token verification failed:', err);
+      return res.status(403).json({ message: 'Invalid or expired token' });
+    }
 
+    console.log('Auth middleware - Token verified, user:', user);
     req.user = user;
     next();
   });
@@ -170,25 +182,57 @@ app.delete('/delete-account', authenticateToken, async (req, res) => {
 // Friend request route
 app.post('/friend-request', authenticateToken, async (req, res) => {
   try {
+    console.log('Friend request received:', req.body);
     const { toUsername } = req.body;
     const fromUser = await User.findById(req.user.userId);
     const toUser = await User.findOne({ username: toUsername });
 
+    console.log('From user:', fromUser?.username);
+    console.log('To user:', toUser?.username);
+
     if (!toUser) {
+      console.log('User not found:', toUsername);
       return res.status(404).json({ message: 'User not found' });
     }
 
-    if (toUser.friendRequests.includes(fromUser._id) || toUser.friends.includes(fromUser._id)) {
-      return res.status(400).json({ message: 'Friend request already sent or already friends' });
+    if (!fromUser) {
+      console.log('From user not found');
+      return res.status(404).json({ message: 'Sender user not found' });
     }
 
+    // Check if request already exists or if they're already friends
+    const isRequestSent = toUser.friendRequests.includes(fromUser._id);
+    const isAlreadyFriends = toUser.friends.includes(fromUser._id);
+
+    console.log('Request status:', {
+      isRequestSent,
+      isAlreadyFriends,
+      toUserFriendRequests: toUser.friendRequests,
+      toUserFriends: toUser.friends
+    });
+
+    if (isRequestSent || isAlreadyFriends) {
+      return res.status(400).json({ 
+        message: isAlreadyFriends ? 'Already friends' : 'Friend request already sent'
+      });
+    }
+
+    // Add the request to both users
     toUser.friendRequests.push(fromUser._id);
-    await toUser.save();
+    fromUser.friendRequests.push(toUser._id);
+
+    // Save both users
+    await Promise.all([toUser.save(), fromUser.save()]);
+
+    console.log('Friend request sent successfully:', {
+      from: fromUser.username,
+      to: toUser.username
+    });
 
     res.status(200).json({ message: 'Friend request sent' });
   } catch (err) {
     console.error('Error sending friend request:', err);
-    res.status(500).json({ message: 'Failed to send friend request' });
+    res.status(500).json({ message: 'Failed to send friend request', error: err.message });
   }
 });
 
@@ -232,6 +276,34 @@ app.post('/accept-request', authenticateToken, async (req, res) => {
   }
 });
 
+app.get('/friends', authenticateToken, async (req, res) => {
+  try {
+    console.log('GET /friends - Starting request processing');
+    const user = await User.findById(req.user.userId)
+      .populate({
+        path: 'friends',
+        select: 'username',
+        model: 'User'
+      });
+    
+    if (!user) {
+      console.log('User not found, returning 404');
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log('User found, friends:', user.friends);
+    const friends = user.friends.map(friend => ({
+      _id: friend._id,
+      username: friend.username
+    }));
+
+    console.log('Sending response with friends:', friends);
+    res.status(200).json(friends);
+  } catch (err) {
+    console.error('Error in GET /friends:', err);
+    res.status(500).json({ message: 'Failed to get friends', error: err.message });
+  }
+});
 
 // Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

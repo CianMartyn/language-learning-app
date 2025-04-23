@@ -241,3 +241,158 @@ ion-content {
     animation-delay: 0.1s;
   }
 }
+
+// Friends Section
+.friends-section {
+  margin-top: 32px;
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: var(--card-shadow);
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin: 0;
+    }
+
+    ion-button {
+      --padding-start: 8px;
+      --padding-end: 8px;
+    }
+  }
+
+  .friends-list {
+    .no-friends {
+      text-align: center;
+      padding: 16px;
+      color: var(--light-text);
+    }
+
+    .friend-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid rgba(108, 92, 231, 0.1);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .friend-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        ion-icon {
+          font-size: 24px;
+          color: var(--primary-color);
+        }
+
+        span {
+          font-size: 1rem;
+          color: var(--text-color);
+        }
+      }
+
+      ion-button {
+        --padding-start: 8px;
+        --padding-end: 8px;
+      }
+    }
+  }
+}
+
+// Dark Mode Adjustments
+:host-context(.dark) {
+  .friends-section {
+    .friend-item {
+      border-bottom-color: rgba(108, 92, 231, 0.2);
+    }
+  }
+}
+
+// Pending Requests Section
+.pending-requests-section {
+  margin-top: 32px;
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: var(--card-shadow);
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin: 0;
+    }
+
+    ion-badge {
+      font-size: 0.9rem;
+      padding: 6px 12px;
+    }
+  }
+
+  .requests-list {
+    .request-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid rgba(108, 92, 231, 0.1);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .request-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        ion-icon {
+          font-size: 24px;
+          color: var(--primary-color);
+        }
+
+        span {
+          font-size: 1rem;
+          color: var(--text-color);
+        }
+      }
+
+      .request-actions {
+        display: flex;
+        gap: 8px;
+
+        ion-button {
+          --padding-start: 8px;
+          --padding-end: 8px;
+        }
+      }
+    }
+  }
+}
+
+// Dark Mode Adjustments
+:host-context(.dark) {
+  .pending-requests-section {
+    .request-item {
+      border-bottom-color: rgba(108, 92, 231, 0.2);
+    }
+  }
+}

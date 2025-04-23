@@ -5,6 +5,9 @@
       <ion-button routerLink="/account" class="account-button">
         <ion-icon name="person-circle-outline"></ion-icon>
       </ion-button>
+      <ion-button (click)="openFriendRequestModal()">
+        <ion-icon name="person-add-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -54,6 +57,54 @@
         Practice with Others
       </ion-button>
     </div>
+
+    <!-- Friends List Section -->
+    <div class="friends-section">
+      <div class="section-header">
+        <h2>Your Friends</h2>
+        <ion-button fill="clear" (click)="openFriendRequestModal()">
+          <ion-icon name="person-add-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <div class="friends-list">
+        <div *ngIf="friends.length === 0" class="no-friends">
+          <p>No friends yet. Add some friends to start practicing together!</p>
+        </div>
+        
+        <div *ngFor="let friend of friends" class="friend-item">
+          <div class="friend-info">
+            <ion-icon name="person-circle-outline"></ion-icon>
+            <span>{{ friend.username }}</span>
+          </div>
+          <ion-button fill="clear" (click)="startChat(friend)">
+            <ion-icon name="chatbubble-ellipses-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Requests Section -->
+    <div class="pending-requests-section" *ngIf="pendingRequests.length > 0">
+      <div class="section-header">
+        <h2>Pending Friend Requests</h2>
+        <ion-badge color="primary">{{ pendingRequestsCount }}</ion-badge>
+      </div>
+      
+      <div class="requests-list">
+        <div *ngFor="let request of pendingRequests" class="request-item">
+          <div class="request-info">
+            <ion-icon name="person-add-outline"></ion-icon>
+            <span>{{ request.fromUsername }} sent you a friend request</span>
+          </div>
+          <div class="request-actions">
+            <ion-button fill="clear" color="success" (click)="acceptRequest(request._id)">
+              <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Custom Lesson Modal -->
@@ -94,6 +145,31 @@
                     class="generate-button">
             <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
             <div *ngIf="!isLoading">Generate Lesson</div>
+          </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Friend Request Modal -->
+  <ion-modal [isOpen]="showFriendRequestModal">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Add Friend</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeFriendRequestModal()">Close</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <div class="form-container">
+          <ion-item>
+            <ion-label position="stacked">Username</ion-label>
+            <ion-input [(ngModel)]="newFriendUsername" placeholder="Enter username"></ion-input>
+          </ion-item>
+          <ion-button expand="block" (click)="sendFriendRequest()" [disabled]="!newFriendUsername">
+            Send Friend Request
           </ion-button>
         </div>
       </ion-content>

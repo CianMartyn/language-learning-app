@@ -1,10 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { FriendService } from '../services/friend.service';
+
+interface Friend {
+  _id: string;
+  username: string;
+}
+
+interface FriendRequest {
+  _id: string;
+  fromUsername: string;
+}
 
 @Component({
   selector: 'app-home',
@@ -13,15 +24,65 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [IonicModule, CommonModule, RouterModule, FormsModule],
 })
-export class HomePage {
+export class HomePage implements OnInit {
 
   selectedLanguage: string = '';
   customTopic: string = '';
   showCustomLessonForm: boolean = false;
   toastController: any;
   isLoading: boolean = false;
+  username: string = '';
+  showFriendRequestModal: boolean = false;
+  newFriendUsername: string = '';
+  friends: Friend[] = [];
+  pendingRequests: FriendRequest[] = [];
+  pendingRequestsCount: number = 0;
   
-  constructor(private router: Router, private http: HttpClient, private toastCtrl: ToastController) {}
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private toastCtrl: ToastController,
+    private friendService: FriendService
+  ) {}
+
+  ngOnInit() {
+    this.username = localStorage.getItem('username') || '';
+    this.loadFriends();
+    this.loadPendingRequests();
+  }
+
+  async loadFriends() {
+    try {
+      const response = await this.friendService.getFriends().toPromise();
+      this.friends = response || [];
+    } catch (error) {
+      console.error('Error loading friends:', error);
+      this.showToast('Failed to load friends', 'danger');
+    }
+  }
+
+  async loadPendingRequests() {
+    try {
+      const response = await this.friendService.getPendingRequests().toPromise();
+      this.pendingRequests = response.requests || [];
+      this.pendingRequestsCount = this.pendingRequests.length;
+    } catch (error) {
+      console.error('Error loading pending requests:', error);
+      this.showToast('Failed to load pending requests', 'danger');
+    }
+  }
+
+  async acceptRequest(requestId: string) {
+    try {
+      await this.friendService.acceptFriendRequest(requestId).toPromise();
+      this.showToast('Friend request accepted', 'success');
+      this.loadFriends();
+      this.loadPendingRequests();
+    } catch (error: any) {
+      console.error('Error accepting friend request:', error);
+      this.showToast(error?.error?.message || 'Failed to accept friend request', 'danger');
+    }
+  }
 
   goToChat() {
     this.router.navigate(['/chat']);
@@ -98,5 +159,60 @@ export class HomePage {
       color: 'danger'
     });
     await toast.present();
+  }
+
+  openFriendRequestModal() {
+    this.showFriendRequestModal = true;
+  }
+
+  closeFriendRequestModal() {
+    this.showFriendRequestModal = false;
+    this.newFriendUsername = '';
+  }
+
+  async sendFriendRequest() {
+    if (!this.newFriendUsername) {
+      this.showToast('Please enter a username', 'warning');
+      return;
+    }
+
+    console.log('Sending friend request to:', this.newFriendUsername);
+    console.log('Current user:', this.username);
+
+    try {
+      const response = await this.friendService.sendFriendRequest(this.newFriendUsername).toPromise();
+      console.log('Friend request response:', response);
+      this.showToast('Friend request sent successfully', 'success');
+      this.closeFriendRequestModal();
+      // Refresh friends list after sending request
+      this.loadFriends();
+    } catch (error: any) {
+      console.error('Error sending friend request:', error);
+      if (error?.error?.message) {
+        this.showToast(error.error.message, 'danger');
+      } else {
+        this.showToast('Failed to send friend request', 'danger');
+      }
+    }
+  }
+
+  async showToast(message: string, color: 'success' | 'warning' | 'danger') {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 3000,
+      color,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
+
+  startChat(friend: Friend) {
+    // Navigate to chat with the selected friend
+    this.router.navigate(['/chat'], { 
+      queryParams: { 
+        friendId: friend._id,
+        friendUsername: friend.username
+      }
+    });
   }
 }

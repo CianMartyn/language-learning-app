@@ -2,6 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface Friend {
+  _id: string;
+  username: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,6 +17,13 @@ export class FriendService {
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
+    console.log('FriendService - Current token:', token);
+    console.log('FriendService - Current username:', localStorage.getItem('username'));
+    
+    if (!token) {
+      console.error('FriendService - No token found in localStorage');
+    }
+
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -30,8 +42,9 @@ export class FriendService {
     });
   }
 
-  getFriends(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/friends`, {
+  getFriends(): Observable<Friend[]> {
+    console.log('Getting friends with headers:', this.getAuthHeaders());
+    return this.http.get<Friend[]>(`${this.apiUrl}/friends`, {
       headers: this.getAuthHeaders()
     });
   }
