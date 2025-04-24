@@ -137,6 +137,7 @@ export class UnitsComponent implements OnInit {
   selectedLanguage: string = 'French';
   showLessonDetails: boolean = false;
   selectedUnit: Unit | null = null;
+  loadingMessage: string = 'Loading...';
 
   constructor(
     private http: HttpClient,
@@ -186,7 +187,57 @@ export class UnitsComponent implements OnInit {
     this.selectedUnit = null;
   }
 
+  async startTutor(unit: Unit, lesson: Lesson) {
+    this.loadingMessage = 'Preparing tutor session...';
+    this.isLoading = true;
+    
+    try {
+      // Get the lesson content from localStorage or generate it if needed
+      let lessonData = JSON.parse(localStorage.getItem(`lesson-${lesson.id}`) || '{}');
+      
+      if (!lessonData.lesson) {
+        console.log('Generating new lesson content for tutor...');
+        const response = await firstValueFrom(
+          this.http.post('http://localhost:5000/generate-lesson', {
+            language: this.selectedLanguage,
+            topic: lesson.title
+          })
+        );
+
+        if (!response) {
+          throw new Error('No response received from server');
+        }
+
+        lessonData = {
+          ...response,
+          language: this.selectedLanguage,
+          topic: lesson.title
+        };
+      }
+
+      // Store the data for the tutor
+      localStorage.setItem('tutorLessonData', JSON.stringify({
+        language: this.selectedLanguage,
+        topic: lesson.title,
+        lessonContent: lessonData.lesson
+      }));
+
+      // Close the modal and navigate to tutor
+      this.showLessonDetails = false;
+      this.selectedUnit = null;
+      this.isLoading = false;
+      
+      // Navigate to the tutor page
+      this.router.navigate(['/lesson-tutor']);
+    } catch (error) {
+      console.error('Error preparing tutor session:', error);
+      await this.showError('Failed to start tutor session. Please try again.');
+      this.isLoading = false;
+    }
+  }
+
   async startLesson(unit: Unit, lesson: Lesson) {
+    this.loadingMessage = 'Generating your lesson...';
     this.isLoading = true;
     
     try {
@@ -208,7 +259,15 @@ export class UnitsComponent implements OnInit {
         throw new Error('No response received from server');
       }
 
-      localStorage.setItem('currentLesson', JSON.stringify(response));
+      // Store complete lesson data including language and topic
+      const lessonData = {
+        ...response,
+        language: this.selectedLanguage,
+        topic: lesson.title
+      };
+      
+      localStorage.setItem('currentLesson', JSON.stringify(lessonData));
+      localStorage.setItem(`lesson-${lesson.id}`, JSON.stringify(lessonData));
       
       lesson.completed = true;
       this.updateUnitProgress(unit);

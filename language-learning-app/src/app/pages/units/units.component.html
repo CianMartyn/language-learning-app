@@ -85,11 +85,21 @@
               <p>{{ lesson.description }}</p>
             </div>
 
-            <ion-button class="lesson-button"
+            <div class="lesson-actions">
+              <ion-button class="lesson-button"
                         [color]="lesson.completed ? 'success' : 'primary'"
                         (click)="startLesson(selectedUnit!, lesson)">
-              {{ lesson.completed ? 'Review' : 'Start' }}
-            </ion-button>
+                {{ lesson.completed ? 'Review' : 'Start' }}
+              </ion-button>
+              
+              <ion-button class="tutor-button"
+                        color="tertiary"
+                        (click)="startTutor(selectedUnit!, lesson)"
+                        [disabled]="!lesson.completed">
+                <ion-icon name="chatbubble-ellipses-outline" slot="start"></ion-icon>
+                Practice with Tutor
+              </ion-button>
+            </div>
           </div>
         </div>
       </div>
@@ -101,6 +111,6 @@
 <div class="loading-overlay" *ngIf="isLoading">
   <div class="loading-content">
     <ion-spinner></ion-spinner>
-    <p>Generating your lesson...</p>
+    <p>{{ loadingMessage }}</p>
   </div>
 </div>

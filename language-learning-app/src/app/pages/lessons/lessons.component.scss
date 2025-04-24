@@ -111,3 +111,18 @@
     }
   }
 }
+
+.tutor-button-container {
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.tutor-button {
+  --background: var(--ion-color-primary);
+  --background-hover: var(--ion-color-primary-shade);
+  --color: white;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-size: 16px;
+  font-weight: 500;
+}

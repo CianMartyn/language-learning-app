@@ -238,3 +238,54 @@
     }
   }
 }
+
+.lesson-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.lesson-button, .tutor-button {
+  width: 100%;
+  min-width: 150px;
+}
+
+.tutor-button {
+  --background: var(--ion-color-tertiary);
+  --background-hover: var(--ion-color-tertiary-shade);
+  font-size: 14px;
+  
+  ion-icon {
+    margin-right: 4px;
+  }
+}
+
+.lesson-content {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px;
+  border-bottom: 1px solid var(--ion-color-light-shade);
+  
+  ion-icon {
+    font-size: 24px;
+    margin-right: 16px;
+  }
+}
+
+.lesson-info {
+  flex: 1;
+  margin-right: 16px;
+  
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  
+  p {
+    margin: 4px 0 0;
+    color: var(--ion-color-medium);
+    font-size: 14px;
+  }
+}

@@ -8,6 +8,7 @@ import { AccountComponent } from './pages/account/account.component';
 import { UnitsComponent } from './pages/units/units.component';
 import { LessonsComponent } from './pages/lessons/lessons.component';
 import { DirectChatPage } from './direct-chat/direct-chat.page';
+import { LessonTutorPage } from './lesson-tutor/lesson-tutor.page';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -41,6 +42,11 @@ export const routes: Routes = [
   {
     path: 'lessons',
     component: LessonsComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'lesson-tutor',
+    component: LessonTutorPage,
     canActivate: [AuthGuard]
   },
   { path: '**', redirectTo: 'login' }

@@ -137,6 +137,34 @@ export class LessonsComponent implements OnInit {
     this.router.navigate(['/units'], { replaceUrl: true });
   }
 
+  goToTutor() {
+    console.log('Current lesson state:', {
+      language: this.lessonLanguage,
+      topic: this.lessonTitle,
+      hasContent: !!this.lessonContent,
+      contentLength: this.lessonContent?.length
+    });
+
+    if (!this.lessonLanguage || !this.lessonTitle || !this.lessonContent) {
+      console.error('Missing required lesson data');
+      this.showError('Missing lesson data. Please try generating the lesson again.');
+      return;
+    }
+
+    const tutorData = {
+      language: this.lessonLanguage,
+      topic: this.lessonTitle,
+      lessonContent: this.lessonContent
+    };
+
+    // Store the current lesson data for the tutor
+    localStorage.setItem('tutorLessonData', JSON.stringify(tutorData));
+    console.log('Stored tutor data in localStorage:', tutorData);
+    
+    // Navigate to the tutor page
+    this.router.navigate(['/lesson-tutor']);
+  }
+
   async showError(message: string) {
     const toast = await this.toastController.create({
       message,

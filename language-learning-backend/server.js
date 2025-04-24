@@ -378,16 +378,81 @@ The lesson should follow this structure:
 Use clear formatting. Output should be educational, friendly, and easy to follow.
 `;
 
-
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
     const result = await model.generateContent(prompt);
     const response = await result.response.text();
+
+    // Store the lesson content in memory for the tutor to reference
+    if (!global.lessonContent) {
+      global.lessonContent = new Map();
+    }
+    global.lessonContent.set(`${language}-${topic}`, response);
 
     res.json({ lesson: response });
   } catch (error) {
     console.error('Error generating lesson:', error);
     res.status(500).json({ error: 'Failed to generate lesson' });
+  }
+});
+
+app.post('/lesson-tutor', authenticateToken, async (req, res) => {
+  try {
+    const { language, topic, message, lessonContent } = req.body;
+
+    if (!language || !topic || !message) {
+      return res.status(400).json({ error: 'Language, topic, and message are required' });
+    }
+
+    // Get the stored lesson content or use the provided one
+    const currentLesson = lessonContent || global.lessonContent?.get(`${language}-${topic}`);
+    
+    if (!currentLesson) {
+      return res.status(400).json({ error: 'No lesson content found. Please generate a lesson first.' });
+    }
+
+    const prompt = `
+You are a helpful and encouraging ${language} language tutor. You have just taught the following lesson:
+
+${currentLesson}
+
+The student's message is: "${message}"
+
+Your role is to:
+1. Help the student practice the vocabulary and concepts from this specific lesson
+2. Correct any mistakes while referencing the lesson content
+3. Encourage usage of the vocabulary and phrases from the lesson
+4. Provide examples that build upon the lesson's content
+5. Keep the conversation focused on the lesson's topic
+6. Use both ${language} and English in your responses
+7. If the student seems to understand the current material well, introduce slightly more advanced related concepts
+
+Please provide a response that:
+- Directly relates to the lesson content
+- Corrects any mistakes gently
+- Encourages practice of the lesson material
+- Uses vocabulary from the lesson
+- Keeps responses clear and helpful
+`;
+
+    console.log('Generating tutor response for lesson:', topic);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const chat = model.startChat();
+    const result = await chat.sendMessage(prompt);
+    const response = await result.response.text();
+    console.log('Tutor response generated');
+
+    res.json({ response });
+  } catch (error) {
+    console.error('Error in lesson tutor:', error);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      error: 'Failed to get tutor response', 
+      details: error.message 
+    });
   }
 });
 
