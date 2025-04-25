@@ -35,11 +35,11 @@
         }" class="message-bubble">
         <strong *ngIf="msg.username === username">You</strong>
         <strong 
-  *ngIf="msg.username !== username" 
-  class="clickable-username"
-  (click)="sendRequest(msg.username)">
-  {{ msg.username }}
-</strong>      
+          *ngIf="msg.username !== username" 
+          class="clickable-username"
+          (click)="viewUserProfile(msg.username)">
+          {{ msg.username }}
+        </strong>      
           <p>{{ msg.message }}</p>
           <div class="timestamp">{{ msg.time }}</div>
         </div>

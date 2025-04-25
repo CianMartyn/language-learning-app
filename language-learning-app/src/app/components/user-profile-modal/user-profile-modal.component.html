@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>User Profile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="profile-container">
+    <ion-avatar class="profile-avatar">
+      <img [src]="user.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.username" alt="Profile Picture">
+    </ion-avatar>
+    
+    <h2 class="username">{{ user.username }}</h2>
+    
+    <div class="profile-info">
+      <div class="info-item" *ngIf="user.country">
+        <ion-icon name="location-outline"></ion-icon>
+        <span>{{ user.country }}</span>
+      </div>
+      
+      <div class="info-item bio" *ngIf="user.bio">
+        <ion-icon name="document-text-outline"></ion-icon>
+        <p>{{ user.bio }}</p>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <ion-button *ngIf="!isFriend && user.username !== currentUsername" 
+                  expand="block" 
+                  color="primary"
+                  (click)="sendFriendRequest()">
+        Send Friend Request
+      </ion-button>
+      
+      <ion-button *ngIf="isFriend" 
+                  expand="block" 
+                  color="danger"
+                  (click)="removeFriend()">
+        Remove Friend
+      </ion-button>
+    </div>
+  </div>
+</ion-content> 

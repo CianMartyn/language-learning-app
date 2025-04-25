@@ -132,4 +132,25 @@ ion-footer {
       color: #0084ff;
     }
   }
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  ion-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  span {
+    &.clickable {
+      cursor: pointer;
+      &:hover {
+        color: var(--ion-color-primary);
+        text-decoration: underline;
+      }
+    }
+  }
 } 

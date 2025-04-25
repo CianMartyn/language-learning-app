@@ -3,7 +3,12 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ friendUsername }}</ion-title>
+    <ion-title class="chat-header">
+      <ion-avatar>
+        <img [src]="friendAvatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + friendUsername" alt="Profile Picture">
+      </ion-avatar>
+      <span class="clickable" (click)="viewUserProfile()">{{ friendUsername }}</span>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 

@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicModule, ToastController } from '@ionic/angular';
+import { IonicModule, ToastController, ModalController, AlertController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { FriendService } from '../services/friend.service';
+import { UserProfileModalComponent } from '../components/user-profile-modal/user-profile-modal.component';
 
 interface Friend {
   _id: string;
   username: string;
+  avatar?: string;
 }
 
 interface FriendRequest {
@@ -42,7 +44,9 @@ export class HomePage implements OnInit {
     private router: Router,
     private http: HttpClient,
     private toastCtrl: ToastController,
-    private friendService: FriendService
+    private friendService: FriendService,
+    private modalController: ModalController,
+    private alertController: AlertController
   ) {}
 
   ngOnInit() {
@@ -224,6 +228,29 @@ export class HomePage implements OnInit {
     } catch (error) {
       console.error('Error removing friend:', error);
       this.showToast('Failed to remove friend', 'danger');
+    }
+  }
+
+  async viewUserProfile(friend: Friend) {
+    try {
+      const response = await this.friendService.getFriendProfile(friend.username).toPromise();
+      const modal = await this.modalController.create({
+        component: UserProfileModalComponent,
+        componentProps: {
+          user: response,
+          isFriend: true,
+          currentUsername: this.username
+        }
+      });
+      await modal.present();
+    } catch (error) {
+      console.error('Error viewing user profile:', error);
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: 'Failed to load user profile',
+        buttons: ['OK']
+      });
+      await alert.present();
     }
   }
 }

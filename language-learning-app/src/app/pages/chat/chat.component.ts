@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ModalController, AlertController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Socket } from 'ngx-socket-io';
 import { RouterModule } from '@angular/router';
 import { FriendService } from 'src/app/services/friend.service';
+import { UserProfileModalComponent } from '../../components/user-profile-modal/user-profile-modal.component';
 
 @Component({
   selector: 'app-chat',
@@ -21,7 +22,12 @@ export class ChatComponent implements OnInit {
   message: string = '';
   messages: any[] = [];
 
-  constructor(private socket: Socket, private friendService: FriendService) {}
+  constructor(
+    private socket: Socket, 
+    private friendService: FriendService,
+    private modalController: ModalController,
+    private alertController: AlertController
+  ) {}
 
   ngOnInit(): void {
     this.username = localStorage.getItem('username') || 'Anonymous';
@@ -33,11 +39,29 @@ export class ChatComponent implements OnInit {
     });
   }
 
-  sendRequest(username: string) {
-    this.friendService.sendFriendRequest(username).subscribe({
-     next: (res) => alert(res.message),
-     error: (err) => alert(err.error.message || 'Error sending request')
-   });
+  async viewUserProfile(username: string) {
+    try {
+      const response = await this.friendService.getFriendProfile(username).toPromise();
+      const isFriend = await this.friendService.isFriend(username).toPromise();
+      
+      const modal = await this.modalController.create({
+        component: UserProfileModalComponent,
+        componentProps: {
+          user: response,
+          isFriend: isFriend,
+          currentUsername: this.username
+        }
+      });
+      await modal.present();
+    } catch (error) {
+      console.error('Error viewing user profile:', error);
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: 'Failed to load user profile',
+        buttons: ['OK']
+      });
+      await alert.present();
+    }
   }
   
   joinRoom(room: string): void {

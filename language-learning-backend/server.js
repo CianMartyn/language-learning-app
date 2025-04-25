@@ -62,7 +62,10 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  sentFriendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+  sentFriendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  avatar: String,
+  bio: String,
+  country: String
 });
 const User = mongoose.model('User', userSchema);
 
@@ -522,6 +525,86 @@ app.delete('/messages/:messageId', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error deleting message:', error);
     res.status(500).json({ error: 'Failed to delete message' });
+  }
+});
+
+// Get user profile by username
+app.get('/users/:username', authenticateToken, async (req, res) => {
+  try {
+    console.log('Looking for user:', req.params.username);
+    const user = await User.findOne({ username: req.params.username });
+    console.log('Found user:', user);
+    
+    if (!user) {
+      console.log('User not found in database');
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.username)}`,
+      bio: user.bio || '',
+      country: user.country || ''
+    });
+  } catch (err) {
+    console.error('Error getting user profile:', err);
+    res.status(500).json({ message: 'Failed to get user profile', error: err.message });
+  }
+});
+
+// Check if a user is a friend
+app.get('/friends/is-friend/:username', authenticateToken, async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user.userId);
+    const targetUser = await User.findOne({ username: req.params.username });
+
+    if (!currentUser || !targetUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isFriend = currentUser.friends.includes(targetUser._id);
+    res.status(200).json(isFriend);
+  } catch (err) {
+    console.error('Error checking friendship:', err);
+    res.status(500).json({ message: 'Failed to check friendship', error: err.message });
+  }
+});
+
+// Update user profile
+app.put('/users/:username', authenticateToken, async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { bio, country } = req.body;
+
+    // Get the user from the request (set by authenticateToken middleware)
+    const currentUser = req.user;
+    if (!currentUser || currentUser.username !== username) {
+      return res.status(403).json({ message: 'You can only update your own profile' });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update the user's profile
+    user.bio = bio || user.bio;
+    user.country = country || user.country;
+    await user.save();
+
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      user: {
+        username: user.username,
+        bio: user.bio,
+        country: user.country,
+        avatar: user.avatar
+      }
+    });
+  } catch (err) {
+    console.error('Error updating user profile:', err);
+    res.status(500).json({ message: 'Failed to update profile', error: err.message });
   }
 });
 

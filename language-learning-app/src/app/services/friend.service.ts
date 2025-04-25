@@ -49,6 +49,18 @@ export class FriendService {
     });
   }
 
+  getFriendProfile(username: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/users/${username}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  isFriend(username: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/friends/is-friend/${username}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
   getPendingRequests(): Observable<any> {
     return this.http.get(`${this.apiUrl}/friend-requests`, {
       headers: this.getAuthHeaders()

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { IonicModule, IonContent, AlertController, ToastController } from '@ionic/angular';
+import { IonicModule, IonContent, AlertController, ToastController, ModalController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Socket } from 'ngx-socket-io';
@@ -7,6 +7,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FriendService } from 'src/app/services/friend.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { UserProfileModalComponent } from '../components/user-profile-modal/user-profile-modal.component';
 
 interface Message {
   _id?: string;
@@ -30,6 +31,7 @@ export class DirectChatPage implements OnInit, OnDestroy {
   newMessage: string = '';
   friendUsername: string = '';
   friendId: string = '';
+  friendAvatar: string = '';
   roomId: string = '';
   private token = localStorage.getItem('token') || '';
   private apiUrl = 'http://localhost:5000';
@@ -40,7 +42,8 @@ export class DirectChatPage implements OnInit, OnDestroy {
     private friendService: FriendService,
     private http: HttpClient,
     private alertController: AlertController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private modalController: ModalController
   ) {}
 
   ngOnInit() {
@@ -189,5 +192,28 @@ export class DirectChatPage implements OnInit, OnDestroy {
       position: 'bottom'
     });
     await toast.present();
+  }
+
+  async viewUserProfile() {
+    try {
+      const response = await this.friendService.getFriendProfile(this.friendUsername).toPromise();
+      const modal = await this.modalController.create({
+        component: UserProfileModalComponent,
+        componentProps: {
+          user: response,
+          isFriend: true,
+          currentUsername: this.currentUser
+        }
+      });
+      await modal.present();
+    } catch (error) {
+      console.error('Error viewing user profile:', error);
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: 'Failed to load user profile',
+        buttons: ['OK']
+      });
+      await alert.present();
+    }
   }
 } 
