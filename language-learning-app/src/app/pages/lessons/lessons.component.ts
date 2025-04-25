@@ -160,9 +160,6 @@ export class LessonsComponent implements OnInit {
     // Store the current lesson data for the tutor
     localStorage.setItem('tutorLessonData', JSON.stringify(tutorData));
     console.log('Stored tutor data in localStorage:', tutorData);
-    
-    // Navigate to the tutor page
-    this.router.navigate(['/lesson-tutor']);
   }
 
   async showError(message: string) {

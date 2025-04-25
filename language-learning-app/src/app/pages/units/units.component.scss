@@ -241,14 +241,16 @@
 
 .lesson-actions {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
   margin-left: 8px;
 }
 
-.lesson-button, .tutor-button {
-  width: 100%;
-  min-width: 150px;
+.lesson-button {
+  min-width: 100px;
+  font-size: 14px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  height: 36px;
 }
 
 .tutor-button {
@@ -288,4 +290,23 @@
     color: var(--ion-color-medium);
     font-size: 14px;
   }
+}
+
+.tutor-section {
+  margin-top: 2rem;
+  padding: 1rem;
+  border-top: 1px solid var(--ion-color-medium);
+}
+
+.tutor-button {
+  margin: 1rem 0;
+  --padding-top: 1rem;
+  --padding-bottom: 1rem;
+}
+
+.tutor-note {
+  text-align: center;
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
 }

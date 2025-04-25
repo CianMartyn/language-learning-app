@@ -11,6 +11,11 @@ interface Message {
   time: string;
 }
 
+interface UnitLesson {
+  title: string;
+  content: string;
+}
+
 @Component({
   selector: 'app-lesson-tutor',
   templateUrl: './lesson-tutor.page.html',
@@ -25,7 +30,8 @@ export class LessonTutorPage implements OnInit {
   newMessage: string = '';
   language: string = '';
   topic: string = '';
-  lessonContent: string = '';
+  unitLessons: UnitLesson[] = [];
+  scenarioPrompt: string = '';
   isLoading: boolean = false;
   private apiUrl = 'http://localhost:5000';
 
@@ -51,19 +57,20 @@ export class LessonTutorPage implements OnInit {
       console.log('Parsed lesson data:', {
         language: lessonData.language,
         topic: lessonData.topic,
-        hasContent: !!lessonData.lessonContent,
-        contentLength: lessonData.lessonContent?.length
+        hasUnitLessons: !!lessonData.unitLessons,
+        scenarioPrompt: !!lessonData.scenarioPrompt
       });
       
       this.language = lessonData.language;
       this.topic = lessonData.topic;
-      this.lessonContent = lessonData.lessonContent;
+      this.unitLessons = lessonData.unitLessons || [];
+      this.scenarioPrompt = lessonData.scenarioPrompt || '';
 
-      if (!this.language || !this.topic || !this.lessonContent) {
+      if (!this.language || !this.topic || !this.unitLessons.length) {
         console.error('Missing required lesson data:', {
           hasLanguage: !!this.language,
           hasTopic: !!this.topic,
-          hasContent: !!this.lessonContent
+          lessonsCount: this.unitLessons.length
         });
         throw new Error('Missing required lesson data');
       }
@@ -71,9 +78,13 @@ export class LessonTutorPage implements OnInit {
       console.log('Lesson data loaded successfully');
 
       // Add initial welcome message
+      const welcomeMessage = this.scenarioPrompt ? 
+        `Welcome to your ${this.language} practice session for ${this.topic}! ${this.scenarioPrompt}\n\nWhat would you like to practice?` :
+        `Welcome to your ${this.language} practice session for ${this.topic}! I'll help you practice what you've learned in all completed lessons. Feel free to ask questions or try out any concepts you've learned. What would you like to practice first?`;
+
       this.messages.push({
         role: 'ai',
-        content: `Welcome to your ${this.language} practice session for "${this.topic}"! I'll help you practice what you've learned in the lesson. Feel free to ask questions, practice vocabulary, or try out the example sentences. What would you like to practice first?`,
+        content: welcomeMessage,
         time: new Date().toLocaleTimeString()
       });
     } catch (error) {
@@ -110,7 +121,8 @@ export class LessonTutorPage implements OnInit {
           language: this.language,
           topic: this.topic,
           message: messageToSend,
-          lessonContent: this.lessonContent
+          unitLessons: this.unitLessons,
+          scenarioPrompt: this.scenarioPrompt
         },
         { headers }
       ).toPromise();
