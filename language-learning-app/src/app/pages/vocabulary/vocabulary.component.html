@@ -1,0 +1,82 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="goHome()">
+        <ion-icon name="home"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Vocabulary Practice</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="progress-container">
+    <div class="streak">
+      <ion-icon name="flame" [class.hot]="correctInARow >= 5"></ion-icon>
+      <span>Current: {{correctInARow}}</span>
+      <span class="best-streak">Best: {{bestStreak}}</span>
+    </div>
+    <div class="daily-progress">
+      <span>Today: {{cardsReviewedToday}}/{{dailyGoal}}</span>
+    </div>
+  </div>
+
+  <ion-item>
+    <ion-label>Select Language</ion-label>
+    <ion-select [(ngModel)]="selectedLanguage" (ionChange)="onLanguageChange()" interface="popover">
+      <ion-select-option *ngFor="let lang of languages" [value]="lang.code">
+        {{lang.flag}} {{lang.name}}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Generating vocabulary...</p>
+  </div>
+
+  <div class="celebration" *ngIf="showCelebration">
+    <div class="confetti"></div>
+    <div class="message">
+      <ion-icon name="trophy"></ion-icon>
+      <span>Amazing! {{correctInARow}} correct in a row!</span>
+    </div>
+  </div>
+
+  <div class="card-container" *ngIf="!isLoading">
+    <div class="flashcard" [class.flipped]="showTranslation">
+      <div class="front">
+        <h2>{{currentCard?.word}}</h2>
+        <p class="example">{{currentCard?.example}}</p>
+        <p class="category">{{currentCard?.category}}</p>
+      </div>
+      <div class="back">
+        <h2>{{currentCard?.translation}}</h2>
+        <p class="example">{{currentCard?.example}}</p>
+        <p class="category">{{currentCard?.category}}</p>
+      </div>
+    </div>
+
+    <div class="answer-section" *ngIf="isCorrect === null">
+      <ion-item>
+        <ion-label position="floating">Your Answer</ion-label>
+        <ion-input [(ngModel)]="userAnswer" (keyup.enter)="checkAnswer()"></ion-input>
+      </ion-item>
+      <div class="button-group">
+        <ion-button expand="block" (click)="checkAnswer()">Check Answer</ion-button>
+        <ion-button expand="block" fill="outline" (click)="revealTranslation()">Reveal Translation</ion-button>
+      </div>
+    </div>
+
+    <div class="feedback-section" *ngIf="isCorrect !== null">
+      <div [class]="isCorrect ? 'correct' : 'incorrect'" [class.celebrate]="isCorrect && correctInARow >= 5">
+        <ion-icon [name]="isCorrect ? 'checkmark-circle' : 'close-circle'"></ion-icon>
+        <span>{{isCorrect ? 'Correct!' : 'Try again'}}</span>
+        <span class="streak-message" *ngIf="isCorrect && correctInARow >= 5">
+          {{correctInARow}} in a row! 🔥
+        </span>
+      </div>
+      <ion-button expand="block" (click)="nextCard()">Next Card</ion-button>
+    </div>
+  </div>
+</ion-content> 

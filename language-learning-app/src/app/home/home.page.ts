@@ -104,6 +104,10 @@ export class HomePage implements OnInit {
     this.router.navigate(['/units']);
   }
 
+  goToVocabulary() {
+    this.router.navigate(['/vocabulary']);
+  }
+
   showCustomLesson() {
     this.showCustomLessonForm = true;
   }
