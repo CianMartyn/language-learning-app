@@ -463,14 +463,30 @@ const Message = mongoose.model('Message', messageSchema);
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  socket.on('joinRoom', (room) => {
+  socket.on('joinRoom', ({ room, username }) => {
     socket.join(room);
-    console.log(`User ${socket.id} joined room ${room}`);
+    console.log(`User ${username} joined room ${room}`);
+    
+    // Get all users in the room
+    const roomUsers = Array.from(io.sockets.adapter.rooms.get(room) || []);
+    const usernames = roomUsers.map(socketId => {
+      const socket = io.sockets.sockets.get(socketId);
+      return socket?.username || 'Anonymous';
+    });
+
+    // Broadcast to everyone in the room that a new user joined
+    socket.to(room).emit('userJoined', { username, room });
+    
+    // Send the list of current users to the new user
+    socket.emit('roomUsers', { room, users: usernames });
   });
 
-  socket.on('leaveRoom', (room) => {
+  socket.on('leaveRoom', ({ room, username }) => {
     socket.leave(room);
-    console.log(`User ${socket.id} left room ${room}`);
+    console.log(`User ${username} left room ${room}`);
+    
+    // Broadcast to everyone in the room that a user left
+    socket.to(room).emit('userLeft', { username, room });
   });
 
   socket.on('chatMessage', async ({ room, username, message }) => {
@@ -485,7 +501,6 @@ io.on('connection', (socket) => {
     });
     console.log("Sending message:", { _id: msg._id, username, message, time });
   });
-
 
   socket.on('disconnect', () => {
     console.log('A user disconnected:', socket.id);

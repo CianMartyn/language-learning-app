@@ -1,62 +1,72 @@
 <ion-header>
   <ion-toolbar>
+    <ion-title>Language Chat</ion-title>
     <ion-buttons slot="start">
-      <!-- Only show back button when in a room -->
-      <ion-button *ngIf="currentRoom" (click)="leaveRoom()">
-        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <!-- Show home navigation when not in a room -->
-      <ion-button *ngIf="!currentRoom" routerLink="/home">
-        <ion-icon name="home-outline" slot="icon-only"></ion-icon>
+      <ion-button routerLink="/home" routerDirection="root">
+        <ion-icon name="home-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ currentRoom ? currentRoom : 'Chat Room' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" color="danger">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div *ngIf="!currentRoom" class="room-selection">
-    <h2>Select a Chat Room</h2>
-    <ion-list>
-      <ion-item *ngFor="let room of rooms" (click)="joinRoom(room)" lines="full">
-        <ion-icon name="chatbubbles-outline" slot="start"></ion-icon>
-        <ion-label>{{ room }}</ion-label>
-        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-      </ion-item>
-    </ion-list>
+<ion-content class="ion-padding">
+  <!-- Language Selection Grid -->
+  <div class="language-grid" *ngIf="!selectedRoom">
+    <ion-card *ngFor="let room of rooms" (click)="joinRoom(room)" class="language-card">
+      <ion-card-content>
+        <div class="language-content">
+          <ion-icon [name]="getLanguageIcon(room)"></ion-icon>
+          <h2>{{ room }}</h2>
+        </div>
+      </ion-card-content>
+    </ion-card>
   </div>
 
-  <div *ngIf="currentRoom">
-    <div class="messages-container">
-      <div *ngFor="let msg of messages">
-        <div [ngClass]="{
-          'my-message': msg.username === username,
-          'other-message': msg.username !== username
-        }" class="message-bubble">
-        <strong *ngIf="msg.username === username">You</strong>
-        <strong 
-          *ngIf="msg.username !== username" 
-          class="clickable-username"
-          (click)="viewUserProfile(msg.username)">
-          {{ msg.username }}
-        </strong>      
+  <!-- Chat Room -->
+  <div *ngIf="selectedRoom" class="chat-container">
+    <div class="chat-header">
+      <ion-button fill="clear" (click)="leaveRoom()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+      <h2>{{ selectedRoom }} Chat</h2>
+      <div class="online-users" [title]="currentRoomUsers.join(', ')">
+        {{ currentRoomUsers.length }} online
+      </div>
+    </div>
+
+    <div class="messages-container" #messagesContainer>
+      <div *ngFor="let msg of messages" class="message" [ngClass]="{'own-message': msg.username === username}">
+        <ion-avatar>
+          <img [src]="getUserAvatar(msg.username)" [alt]="msg.username">
+        </ion-avatar>
+        <div class="message-content">
+          <div class="message-header">
+            <span class="username" (click)="viewUserProfile(msg.username)">{{ msg.username }}</span>
+            <span class="time">{{ msg.time }}</span>
+          </div>
           <p>{{ msg.message }}</p>
-          <div class="timestamp">{{ msg.time }}</div>
         </div>
       </div>
     </div>
-    
-    <div class="message-input-container">
-      <ion-item>
-        <ion-input 
-          [(ngModel)]="message" 
-          placeholder="Type your message..." 
-          (keyup.enter)="sendMessage()"
-        ></ion-input>
-      </ion-item>
-      <ion-button expand="block" (click)="sendMessage()">
-        <ion-icon name="send" slot="start"></ion-icon>
-        Send
+
+    <div class="typing-indicator" *ngIf="typingUsers.length > 0">
+      {{ typingUsers.join(', ') }} {{ typingUsers.length === 1 ? 'is' : 'are' }} typing...
+    </div>
+
+    <div class="input-container">
+      <ion-input
+        [(ngModel)]="newMessage"
+        placeholder="Type a message..."
+        (keyup.enter)="sendMessage()"
+        (ionInput)="onTyping()"
+      ></ion-input>
+      <ion-button (click)="sendMessage()">
+        <ion-icon name="send-outline"></ion-icon>
       </ion-button>
     </div>
   </div>

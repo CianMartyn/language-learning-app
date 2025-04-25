@@ -16,27 +16,110 @@ import { UserProfileModalComponent } from '../../components/user-profile-modal/u
 })
 
 export class ChatComponent implements OnInit {
-  rooms: string[] = ['English', 'French', 'Spanish', 'German'];
-  currentRoom: string | null = null;
-  username: string = '';
-  message: string = '';
+  rooms: string[] = [
+    'English',
+    'Spanish',
+    'French',
+    'German',
+    'Italian',
+    'Portuguese',
+    'Japanese',
+  ];
+  selectedRoom: string = '';
   messages: any[] = [];
+  newMessage: string = '';
+  username: string = localStorage.getItem('username') || '';
+  currentRoomUsers: string[] = [];
+  isTyping: boolean = false;
+  typingUsers: string[] = [];
+  typingTimeout: any;
+  userAvatars: { [key: string]: string } = {};
+  isDarkMode: boolean = false;
 
   constructor(
     private socket: Socket, 
     private friendService: FriendService,
     private modalController: ModalController,
     private alertController: AlertController
-  ) {}
+  ) {
+    // Set the username when the component is created
+    this.username = localStorage.getItem('username') || 'Anonymous';
+    console.log("Initialised username:", this.username);
+  }
 
   ngOnInit(): void {
-    this.username = localStorage.getItem('username') || 'Anonymous';
     console.log("Loaded username:", this.username);
   
     this.socket.on('message', (data: any) => {
       console.log("Incoming message:", data);
       this.messages.push(data);
     });
+
+    // Handle user joining room
+    this.socket.on('userJoined', (data: { username: string, room: string }) => {
+      if (data.room === this.selectedRoom) {
+        this.currentRoomUsers.push(data.username);
+      }
+    });
+
+    // Handle user leaving room
+    this.socket.on('userLeft', (data: { username: string, room: string }) => {
+      if (data.room === this.selectedRoom) {
+        this.currentRoomUsers = this.currentRoomUsers.filter(user => user !== data.username);
+      }
+    });
+
+    // Handle room users list
+    this.socket.on('roomUsers', (data: { room: string, users: string[] }) => {
+      if (data.room === this.selectedRoom) {
+        this.currentRoomUsers = data.users;
+      }
+    });
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    window.location.href = '/login';
+  }
+
+  getLanguageIcon(language: string): string {
+    const icons: { [key: string]: string } = {
+      'English': 'language-outline',
+      'Spanish': 'language-outline',
+      'French': 'language-outline',
+      'German': 'language-outline',
+      'Italian': 'language-outline',
+      'Portuguese': 'language-outline',
+      'Japanese': 'language-outline',
+    };
+    return icons[language] || 'language-outline';
+  }
+
+  getUserAvatar(username: string): string {
+    if (this.userAvatars[username]) {
+      return this.userAvatars[username];
+    }
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`;
+  }
+
+  onTyping(): void {
+    if (!this.isTyping) {
+      this.isTyping = true;
+      this.socket.emit('typing', {
+        room: this.selectedRoom,
+        username: this.username
+      });
+    }
+
+    clearTimeout(this.typingTimeout);
+    this.typingTimeout = setTimeout(() => {
+      this.isTyping = false;
+      this.socket.emit('stopTyping', {
+        room: this.selectedRoom,
+        username: this.username
+      });
+    }, 1000);
   }
 
   async viewUserProfile(username: string) {
@@ -65,26 +148,43 @@ export class ChatComponent implements OnInit {
   }
   
   joinRoom(room: string): void {
-    this.currentRoom = room;
+    this.selectedRoom = room;
     this.messages = []; // clear previous messages
-    this.socket.emit('joinRoom', room);
+    this.currentRoomUsers = []; // clear previous users
+    
+    // Ensure we have a valid username
+    const currentUsername = localStorage.getItem('username');
+    if (!currentUsername) {
+      console.error('No username found in localStorage');
+      return;
+    }
+
+    console.log('Joining room with username:', currentUsername);
+    this.socket.emit('joinRoom', {
+      room: room,
+      username: currentUsername
+    });
   }
 
   leaveRoom(): void {
-    if (this.currentRoom) {
-      this.socket.emit('leaveRoom', this.currentRoom);
-      this.currentRoom = null;
+    if (this.selectedRoom) {
+      this.socket.emit('leaveRoom', {
+        room: this.selectedRoom,
+        username: this.username
+      });
+      this.selectedRoom = '';
       this.messages = [];
+      this.currentRoomUsers = [];
     }
   }
 
   sendMessage(): void {
-    if (!this.message.trim()) return;
+    if (!this.newMessage.trim()) return;
     this.socket.emit('chatMessage', {
-      room: this.currentRoom,
+      room: this.selectedRoom,
       username: this.username,
-      message: this.message
+      message: this.newMessage
     });
-    this.message = '';
+    this.newMessage = '';
   }
 }
