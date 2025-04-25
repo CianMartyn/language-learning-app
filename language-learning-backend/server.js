@@ -408,14 +408,27 @@ app.post('/lesson-tutor', authenticateToken, async (req, res) => {
       `Lesson: ${lesson.title}\n${lesson.content}`
     ).join('\n\n');
 
-    const prompt = scenarioPrompt ? 
-      `${scenarioPrompt}\n\nYou have access to the following lessons:\n${combinedContent}\n\nStudent's message: "${message}"\n\nRemember to:\n- Stay in character\n- Use vocabulary and concepts from the lessons\n- Correct any mistakes gently\n- Keep the conversation natural and focused on the scenario\n- Use both ${language} and English\n- Draw from all available lessons to create comprehensive responses` :
-      `You are a helpful and encouraging ${language} language tutor. You have access to the following lessons:\n\n${combinedContent}\n\nThe student's message is: "${message}"\n\nYour role is to:\n1. Help the student practice vocabulary and concepts from all available lessons\n2. Correct any mistakes while referencing relevant lesson content\n3. Encourage usage of vocabulary and phrases from any lesson\n4. Provide examples that combine concepts from multiple lessons\n5. Keep the conversation focused on the unit's topic\n6. Use both ${language} and English in your responses\n7. If the student seems to understand the material well, introduce slightly more advanced related concepts`;
+    const systemPrompt = `You are a helpful and encouraging ${language} language tutor. You have access to the following lessons:\n\n${combinedContent}\n\nYour role is to:\n1. Help the student practice vocabulary and concepts from all available lessons\n2. Correct any mistakes while referencing relevant lesson content\n3. Encourage usage of vocabulary and phrases from any lesson\n4. Provide examples that combine concepts from multiple lessons\n5. Keep the conversation focused on the unit's topic\n6. Use both ${language} and English in your responses\n7. If the student seems to understand the material well, introduce slightly more advanced related concepts`;
+
+    const userPrompt = scenarioPrompt ? 
+      `Student's message: "${message}"` :
+      `Student's message: "${message}"`;
 
     console.log('Generating tutor response for unit:', topic);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-pro" });
-    const chat = model.startChat();
-    const result = await chat.sendMessage(prompt);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const chat = model.startChat({
+      history: [
+        {
+          role: "user",
+          parts: [{ text: systemPrompt }],
+        },
+        {
+          role: "model",
+          parts: [{ text: "I understand my role as a language tutor. I'll help the student practice while following the guidelines provided." }],
+        }
+      ]
+    });
+    const result = await chat.sendMessage(userPrompt);
     const response = await result.response.text();
     console.log('Tutor response generated');
 

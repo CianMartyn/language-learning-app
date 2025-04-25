@@ -9,6 +9,7 @@ interface Message {
   role: 'user' | 'ai';
   content: string;
   time: string;
+  avatar?: string;
 }
 
 interface UnitLesson {
@@ -34,6 +35,7 @@ export class LessonTutorPage implements OnInit {
   scenarioPrompt: string = '';
   isLoading: boolean = false;
   private apiUrl = 'http://localhost:5000';
+  tutorAvatar: string = '';
 
   constructor(
     private http: HttpClient,
@@ -65,6 +67,7 @@ export class LessonTutorPage implements OnInit {
       this.topic = lessonData.topic;
       this.unitLessons = lessonData.unitLessons || [];
       this.scenarioPrompt = lessonData.scenarioPrompt || '';
+      this.tutorAvatar = lessonData.tutorAvatar || '';
 
       if (!this.language || !this.topic || !this.unitLessons.length) {
         console.error('Missing required lesson data:', {
@@ -78,14 +81,13 @@ export class LessonTutorPage implements OnInit {
       console.log('Lesson data loaded successfully');
 
       // Add initial welcome message
-      const welcomeMessage = this.scenarioPrompt ? 
-        `Welcome to your ${this.language} practice session for ${this.topic}! ${this.scenarioPrompt}\n\nWhat would you like to practice?` :
-        `Welcome to your ${this.language} practice session for ${this.topic}! I'll help you practice what you've learned in all completed lessons. Feel free to ask questions or try out any concepts you've learned. What would you like to practice first?`;
+      const welcomeMessage = `Bonjour! Welcome to your ${this.language} practice session. What would you like to practice today?`;
 
       this.messages.push({
         role: 'ai',
         content: welcomeMessage,
-        time: new Date().toLocaleTimeString()
+        time: new Date().toLocaleTimeString(),
+        avatar: this.tutorAvatar
       });
     } catch (error) {
       console.error('Error initializing tutor:', error);
