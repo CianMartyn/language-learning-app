@@ -1,24 +1,45 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Register</ion-title>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/sign-in"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Create Account</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-item>
-    <ion-label position="floating">Username</ion-label>
-    <ion-input [(ngModel)]="username"></ion-input>
-  </ion-item>
+<ion-content class="ion-padding">
+  <div class="container">
+    <div class="logo-container">
+      <ion-icon name="person-add-outline" size="large"></ion-icon>
+      <h2>Join Language Learning</h2>
+    </div>
 
-  <ion-item>
-    <ion-label position="floating">Email</ion-label>
-    <ion-input [(ngModel)]="email"></ion-input>
-  </ion-item>
+    <div class="form-container">
+      <ion-item class="custom-item">
+        <ion-icon name="person-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Username</ion-label>
+        <ion-input [(ngModel)]="username" class="custom-input"></ion-input>
+      </ion-item>
 
-  <ion-item>
-    <ion-label position="floating">Password</ion-label>
-    <ion-input [(ngModel)]="password" type="password"></ion-input>
-  </ion-item>
+      <ion-item class="custom-item">
+        <ion-icon name="mail-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Email</ion-label>
+        <ion-input type="email" [(ngModel)]="email" class="custom-input"></ion-input>
+      </ion-item>
 
-  <ion-button expand="block" (click)="register()">Register</ion-button>
+      <ion-item class="custom-item">
+        <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Password</ion-label>
+        <ion-input type="password" [(ngModel)]="password" class="custom-input"></ion-input>
+      </ion-item>
+
+      <ion-button expand="block" class="register-button" (click)="register()">
+        Create Account
+      </ion-button>
+
+      <div class="terms">
+        <p>By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
+      </div>
+    </div>
+  </div>
 </ion-content>

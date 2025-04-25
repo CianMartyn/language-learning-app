@@ -463,8 +463,16 @@ const Message = mongoose.model('Message', messageSchema);
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
+  // Store the username when a user joins
   socket.on('joinRoom', ({ room, username }) => {
+    if (!username) {
+      console.error('No username provided for socket:', socket.id);
+      return;
+    }
+
     socket.join(room);
+    socket.username = username; // Store username on socket
+    socket.room = room; // Store current room
     console.log(`User ${username} joined room ${room}`);
     
     // Get all users in the room
@@ -482,6 +490,11 @@ io.on('connection', (socket) => {
   });
 
   socket.on('leaveRoom', ({ room, username }) => {
+    if (!username) {
+      console.error('No username provided for socket:', socket.id);
+      return;
+    }
+
     socket.leave(room);
     console.log(`User ${username} left room ${room}`);
     
@@ -490,6 +503,11 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chatMessage', async ({ room, username, message }) => {
+    if (!username) {
+      console.error('No username provided for message from socket:', socket.id);
+      return;
+    }
+
     const time = new Date().toLocaleTimeString();
     const msg = new Message({ room, username, message, time });
     await msg.save();
@@ -504,6 +522,13 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('A user disconnected:', socket.id);
+    // If the socket was in a room, notify others
+    if (socket.room && socket.username) {
+      socket.to(socket.room).emit('userLeft', { 
+        username: socket.username, 
+        room: socket.room 
+      });
+    }
   });
 });
 

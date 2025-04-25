@@ -1,18 +1,40 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Sign In</ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Welcome Back</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-item>
-    <ion-label position="floating">Email</ion-label>
-    <ion-input type="email" [(ngModel)]="email"></ion-input>
-  </ion-item>
-  <ion-item>
-    <ion-label position="floating">Password</ion-label>
-    <ion-input type="password" [(ngModel)]="password"></ion-input>
-  </ion-item>
-  <ion-button expand="block" (click)="signIn()">Sign In</ion-button>
-  <ion-button expand="block" fill="clear" routerLink="/register">Don't have an account? Register</ion-button>
+<ion-content class="ion-padding">
+  <div class="container">
+    <div class="logo-container">
+      <ion-icon name="language" size="large"></ion-icon>
+      <h2>Language Learning</h2>
+    </div>
+
+    <div class="form-container">
+      <ion-item class="custom-item">
+        <ion-icon name="mail-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Email</ion-label>
+        <ion-input type="email" [(ngModel)]="email" class="custom-input"></ion-input>
+      </ion-item>
+
+      <ion-item class="custom-item">
+        <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+        <ion-label position="floating">Password</ion-label>
+        <ion-input type="password" [(ngModel)]="password" class="custom-input"></ion-input>
+      </ion-item>
+
+      <ion-button expand="block" class="sign-in-button" (click)="signIn()">
+        Sign In
+      </ion-button>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <ion-button expand="block" fill="clear" routerLink="/register" class="register-button">
+        Create New Account
+      </ion-button>
+    </div>
+  </div>
 </ion-content>
