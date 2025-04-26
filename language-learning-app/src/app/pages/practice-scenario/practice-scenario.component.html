@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ scenarioData?.character }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="chat-container">
+    <div #messagesContainer class="messages">
+      <div *ngFor="let message of messages" class="message" [ngClass]="{'user-message': message.role === 'user', 'assistant-message': message.role === 'assistant'}">
+        <img *ngIf="message.role === 'assistant'" 
+             [src]="'https://api.dicebear.com/7.x/avataaars/svg?seed=' + scenarioData?.character" 
+             alt="Character Avatar" 
+             class="avatar">
+        <div class="message-content">
+          {{ message.content }}
+        </div>
+      </div>
+      <div *ngIf="isLoading" class="typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <div class="input-container">
+    <ion-input [(ngModel)]="userMessage" 
+               placeholder="Type your message..." 
+               (keyup.enter)="sendMessage()">
+    </ion-input>
+    <ion-button (click)="sendMessage()" 
+                [disabled]="!userMessage.trim() || isLoading">
+      <ion-icon name="send"></ion-icon>
+    </ion-button>
+  </div>
+</ion-footer> 

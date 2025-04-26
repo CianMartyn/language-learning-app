@@ -96,19 +96,35 @@
         </div>
       </div>
 
-      <div class="tutor-section" *ngIf="selectedUnit">
-        <ion-button 
-          expand="block" 
-          color="tertiary" 
-          class="tutor-button"
-          (click)="startUnitTutor(selectedUnit)"
-          [disabled]="isLoading || !hasCompletedLessons(selectedUnit)">
-          <ion-icon name="school-outline" slot="start"></ion-icon>
-          Practice Unit with AI Tutor
-        </ion-button>
-        <p class="tutor-note" *ngIf="!hasCompletedLessons(selectedUnit)">
-          Complete at least one lesson to unlock the AI tutor
-        </p>
+      <div class="practice-section">
+        <h3>Practice with AI</h3>
+        
+        <!-- AI Tutor -->
+        <div class="practice-option" (click)="selectedUnit && startUnitTutor(selectedUnit)">
+          <ion-icon name="school-outline"></ion-icon>
+          <div class="option-content">
+            <h4>AI Tutor</h4>
+            <p>Get personalized lessons and practice with an AI tutor</p>
+          </div>
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </div>
+
+        <!-- Practice Scenario -->
+        <div class="scenario-card" *ngIf="selectedUnit && scenarios[selectedUnit.id]">
+          <div class="scenario-header">
+            <img [src]="'https://api.dicebear.com/7.x/avataaars/svg?seed=' + scenarios[selectedUnit.id].character" 
+                 alt="Character Avatar" 
+                 class="character-avatar">
+            <div class="scenario-info">
+              <h4>{{ scenarios[selectedUnit.id].character }}</h4>
+              <p class="role">{{ scenarios[selectedUnit.id].role }}</p>
+            </div>
+          </div>
+          <p class="scenario-description">{{ scenarios[selectedUnit.id].description }}</p>
+          <ion-button expand="block" (click)="startPracticeScenario()" class="start-scenario">
+            Start Conversation
+          </ion-button>
+        </div>
       </div>
     </ion-content>
   </ng-template>

@@ -38,6 +38,12 @@ interface Progress {
   units: { [key: string]: UnitProgress };
 }
 
+interface PracticeScenario {
+  character: string;
+  role: string;
+  description: string;
+}
+
 @Component({
   selector: 'app-units',
   templateUrl: './units.component.html',
@@ -246,6 +252,34 @@ export class UnitsComponent implements OnInit {
   showLessonDetails: boolean = false;
   selectedUnit: Unit | null = null;
   loadingMessage: string = 'Loading...';
+
+  scenarios: { [key: string]: PracticeScenario } = {
+    'food': {
+      character: 'Jean',
+      role: 'Waitress',
+      description: 'Practice ordering food and drinks in a restaurant setting. Jean will help you learn common phrases and vocabulary for dining out.'
+    },
+    'daily': {
+      character: 'Marie',
+      role: 'Shop Assistant',
+      description: 'Practice shopping conversations with Marie. Learn how to ask for items, check prices, and make purchases in a store.'
+    },
+    'travel': {
+      character: 'Pierre',
+      role: 'Tour Guide',
+      description: 'Practice travel-related conversations with Pierre. Learn how to ask for directions, book accommodations, and navigate transportation.'
+    },
+    'health': {
+      character: 'Dr. Sophie',
+      role: 'Doctor',
+      description: 'Practice medical conversations with Dr. Sophie. Learn how to describe symptoms, make appointments, and understand medical advice.'
+    },
+    'greetings': {
+      character: 'Claire',
+      role: 'Neighbor',
+      description: 'Practice everyday conversations with Claire. Learn common phrases for social interactions, making plans, and daily activities.'
+    }
+  };
 
   constructor(
     private http: HttpClient,
@@ -478,5 +512,43 @@ export class UnitsComponent implements OnInit {
     };
 
     return scenarios[unitId] || '';
+  }
+
+  getScenarioTitle(): string {
+    if (!this.selectedUnit) return '';
+    const scenario = this.scenarios[this.selectedUnit.id];
+    return scenario ? `${scenario.character} (${scenario.role})` : '';
+  }
+
+  async startPracticeScenario() {
+    if (!this.selectedUnit || !this.scenarios[this.selectedUnit.id]) {
+      await this.showError('Please select a valid unit first');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      await this.showError('Please log in to access practice scenarios');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    try {
+      const scenario = this.scenarios[this.selectedUnit.id];
+      const scenarioData = {
+        ...scenario,
+        language: this.selectedLanguage,
+        unitTitle: this.selectedUnit.title,
+        unitId: this.selectedUnit.id
+      };
+
+      localStorage.setItem('practiceScenario', JSON.stringify(scenarioData));
+      this.showLessonDetails = false;
+      this.selectedUnit = null;
+      this.router.navigate(['/practice-scenario']);
+    } catch (error) {
+      console.error('Error starting practice scenario:', error);
+      await this.showError('Failed to start practice scenario. Please try again.');
+    }
   }
 }

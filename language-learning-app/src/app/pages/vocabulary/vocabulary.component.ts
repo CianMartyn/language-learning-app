@@ -88,102 +88,48 @@ export class VocabularyComponent implements OnInit {
     while (retryCount < maxRetries) {
       try {
         console.log(`Attempt ${retryCount + 1} of ${maxRetries}...`);
-        
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
-          'x-goog-api-key': 'AIzaSyDoH3VtU2i11rnXnL1zJQHOXGx43Sz8MAM'
+          'Authorization': `Bearer ${token}`
         });
 
-        const requestBody = {
-          contents: [{
-            parts: [{
-              text: `Generate 30 vocabulary words in ${this.selectedLanguage} with their English translations and example sentences. 
-              Format the response as a valid JSON array of objects with the following structure:
-              [
-                {
-                  "word": "word in target language",
-                  "translation": "English translation",
-                  "example": "Example sentence in target language",
-                  "category": "Category of the word"
-                }
-              ]
-              
-              Make sure to:
-              1. Include a variety of categories (verbs, nouns, adjectives, etc.)
-              2. Use different difficulty levels
-              3. Include common and useful words
-              4. Make sure the response is a valid JSON array and nothing else.`
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.9,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 2048,
-          },
-          safetySettings: [
-            {
-              category: "HARM_CATEGORY_HARASSMENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_HATE_SPEECH",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            }
-          ]
-        };
-
-        const response = await this.http.post<GeminiResponse>(
-          'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=AIzaSyDoH3VtU2i11rnXnL1zJQHOXGx43Sz8MAM',
-          requestBody,
+        const response = await this.http.post<any>(
+          `${environment.apiUrl}/api/vocabulary/generate`,
+          { language: this.selectedLanguage },
           { headers }
         ).toPromise();
 
-        if (response && response.candidates && response.candidates[0]?.content?.parts[0]?.text) {
-          try {
-            const generatedCards = response.candidates[0].content.parts[0].text;
-            const parsedCards = JSON.parse(generatedCards);
-            
-            if (Array.isArray(parsedCards)) {
-              // Filter out duplicates and add to existing cards
-              const newCards = parsedCards
-                .filter((card: any) => !this.allGeneratedWords.has(card.word))
-                .map((card: any) => ({
-                  ...card,
-                  lastReviewed: new Date(),
-                  nextReview: new Date(),
-                  level: 1,
-                  language: this.selectedLanguage
-                }));
+        if (Array.isArray(response)) {
+          // Filter out duplicates and add to existing cards
+          const newCards = response
+            .filter((card: any) => !this.allGeneratedWords.has(card.word))
+            .map((card: any) => ({
+              ...card,
+              lastReviewed: new Date(),
+              nextReview: new Date(),
+              level: 1,
+              language: this.selectedLanguage
+            }));
 
-              // Add new words to the set of generated words
-              newCards.forEach(card => this.allGeneratedWords.add(card.word));
+          // Add new words to the set of generated words
+          newCards.forEach(card => this.allGeneratedWords.add(card.word));
 
-              // Add new cards to existing ones
-              this.cards = [...this.cards, ...newCards];
+          // Add new cards to existing ones
+          this.cards = [...this.cards, ...newCards];
 
-              this.filterCardsByLanguage();
-              this.selectRandomCard();
-              this.updateStats();
-              this.isLoading = false;
-              return;
-            } else {
-              throw new Error('Invalid response format: not an array');
-            }
-          } catch (parseError) {
-            console.error('Error parsing response:', parseError);
-            throw new Error('Failed to parse vocabulary data');
-          }
+          this.filterCardsByLanguage();
+          this.selectRandomCard();
+          this.updateStats();
+          this.isLoading = false;
+          return;
         } else {
-          throw new Error('Invalid response from API');
+          throw new Error('Invalid response format: not an array');
         }
       } catch (error: any) {
         console.error(`Attempt ${retryCount + 1} failed:`, error);
@@ -198,7 +144,7 @@ export class VocabularyComponent implements OnInit {
           }
         }
 
-        const errorMessage = error.error?.error?.message || error.message || 'Unknown error occurred';
+        const errorMessage = error.error?.message || error.message || 'Unknown error occurred';
         const alert = await this.alertController.create({
           header: 'Error',
           message: `Failed to generate vocabulary: ${errorMessage}`,

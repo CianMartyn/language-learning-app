@@ -99,7 +99,7 @@ app.post('/login', async (req, res) => {
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET || 'your_jwt_secret',
-      { expiresIn: '1h' }
+      { expiresIn: '365d' }
     );
 
     return res.status(200).json({ message: 'Login successful', token, username: user.username });
@@ -645,6 +645,132 @@ app.put('/users/:username', authenticateToken, async (req, res) => {
   } catch (err) {
     console.error('Error updating user profile:', err);
     res.status(500).json({ message: 'Failed to update profile', error: err.message });
+  }
+});
+
+// Vocabulary generation endpoint
+app.post('/api/vocabulary/generate', authenticateToken, async (req, res) => {
+  try {
+    const { language } = req.body;
+    
+    const requestBody = {
+      contents: [{
+        parts: [{
+          text: `Generate 30 vocabulary words in ${language} with their English translations and example sentences. 
+          Format the response as a valid JSON array of objects with the following structure:
+          [
+            {
+              "word": "word in target language",
+              "translation": "English translation",
+              "example": "Example sentence in target language",
+              "category": "Category of the word"
+            }
+          ]
+          
+          Make sure to:
+          1. Include a variety of categories (verbs, nouns, adjectives, etc.)
+          2. Use different difficulty levels
+          3. Include common and useful words
+          4. Make sure the response is a valid JSON array and nothing else.`
+        }]
+      }],
+      generationConfig: {
+        temperature: 0.9,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 2048,
+      },
+      safetySettings: [
+        {
+          category: "HARM_CATEGORY_HARASSMENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_HATE_SPEECH",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        }
+      ]
+    };
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const result = await model.generateContent(requestBody);
+    
+    if (result && result.response && result.response.candidates && result.response.candidates[0]?.content?.parts[0]?.text) {
+      try {
+        const generatedCards = result.response.candidates[0].content.parts[0].text;
+        const parsedCards = JSON.parse(generatedCards);
+        
+        if (Array.isArray(parsedCards)) {
+          res.json(parsedCards);
+        } else {
+          throw new Error('Invalid response format: not an array');
+        }
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError);
+        res.status(500).json({ error: 'Failed to parse vocabulary data' });
+      }
+    } else {
+      res.status(500).json({ error: 'Invalid response from Gemini API' });
+    }
+  } catch (error) {
+    console.error('Error generating vocabulary:', error);
+    res.status(500).json({ 
+      error: error.message || 'Failed to generate vocabulary'
+    });
+  }
+});
+
+// Practice Scenario Endpoint
+app.post('/chat/practice-scenario', authenticateToken, async (req, res) => {
+  try {
+    const { message, language, character, role, context, history } = req.body;
+
+    if (!message || !language || !character || !role || !context) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const systemPrompt = `You are ${character}, a ${role}. ${context}
+    Your role is to:
+    1. Help the student practice ${language} in a realistic scenario
+    2. Stay in character as ${character}
+    3. Use both ${language} and English in your responses
+    4. Correct any mistakes while being encouraging
+    5. Keep the conversation focused on the scenario context
+    6. If the student seems to understand well, introduce slightly more advanced concepts`;
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const chat = model.startChat({
+      history: [
+        {
+          role: "user",
+          parts: [{ text: systemPrompt }],
+        },
+        {
+          role: "model",
+          parts: [{ text: `I understand my role as ${character}. I'll help the student practice while staying in character.` }],
+        },
+        ...history.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.content }]
+        }))
+      ]
+    });
+
+    const result = await chat.sendMessage(message);
+    const response = await result.response.text();
+
+    res.json({ message: response });
+  } catch (error) {
+    console.error('Error in practice scenario:', error);
+    res.status(500).json({ error: 'Failed to generate response' });
   }
 });
 

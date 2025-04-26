@@ -10,6 +10,7 @@ import { LessonsComponent } from './pages/lessons/lessons.component';
 import { DirectChatPage } from './direct-chat/direct-chat.page';
 import { LessonTutorPage } from './lesson-tutor/lesson-tutor.page';
 import { VocabularyComponent } from './pages/vocabulary/vocabulary.component';
+import { PracticeScenarioComponent } from './pages/practice-scenario/practice-scenario.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -53,6 +54,11 @@ export const routes: Routes = [
   {
     path: 'vocabulary',
     component: VocabularyComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'practice-scenario',
+    component: PracticeScenarioComponent,
     canActivate: [AuthGuard]
   },
   { path: '**', redirectTo: 'login' }
