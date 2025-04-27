@@ -67,7 +67,8 @@ The project consists of two main components:
 
 1. Clone the repository:
 ```bash
-git clone [repository-url]
+git clone https://github.com/CianMartyn/language-learning-app
+
 ```
 
 2. Install frontend dependencies:
